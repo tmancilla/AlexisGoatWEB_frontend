@@ -1,4 +1,4 @@
-.login {
+.register {
   min-height: calc(100vh - 60px);
   background-image: url("../../assets/landing-background.png");
   background-size: cover;
@@ -12,12 +12,12 @@
   align-items: center;
 }
 
-.login h1 {
+.register h1 {
   font-size: 70px;
   margin-bottom: 40px;
 }
 
-.login-form {
+.register-form {
   width: 450px;
 
   display: flex;
@@ -25,31 +25,31 @@
   gap: 15px;
 }
 
-.login-form label {
+.register-form label {
   font-size: 25px;
 }
 
-.login-form input {
+.register-form input {
   height: 50px;
   font-size: 20px;
   padding: 10px;
 }
 
-.login-form button {
+.register-form button {
   height: 70px;
   margin-top: 20px;
 
   font-family: "Bree Serif", serif;
   font-size: 25px;
   color: white;
-  background-color: #184063;
+  background-color: #516953;
 
   border: none;
   border-radius: 15px;
   cursor: pointer;
 }
 
-.login-error {
+.register-error {
   color: #f2c94c;
   font-size: 20px;
   margin: 0;
