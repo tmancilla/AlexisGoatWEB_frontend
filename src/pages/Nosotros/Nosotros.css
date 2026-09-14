@@ -1,0 +1,58 @@
+.nosotros {
+  min-height: calc(100vh - 60px);
+  background-color: #10283d;
+  color: white;
+  padding: 50px;
+  font-family: "Bree Serif", serif;
+}
+
+.nosotros h1 {
+  font-size: 70px;
+  text-align: center;
+  margin-top: 0;
+}
+
+.nosotros-proyecto {
+  max-width: 900px;
+  margin: auto;
+  text-align: center;
+}
+
+.nosotros-proyecto h2 {
+  font-size: 40px;
+}
+
+.nosotros-proyecto p {
+  font-size: 25px;
+}
+
+.nosotros-equipo {
+  margin-top: 60px;
+  text-align: center;
+}
+
+.nosotros-equipo h2 {
+  font-size: 40px;
+}
+
+.equipo {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+}
+
+.integrante {
+  width: 300px;
+  background-color: #184063;
+  border-radius: 15px;
+  padding: 25px;
+}
+
+.integrante h3 {
+  font-size: 30px;
+  margin-top: 0;
+}
+
+.integrante p {
+  font-size: 22px;
+}
