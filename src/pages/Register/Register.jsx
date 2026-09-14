@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import usuarios from "../../mocks/usuarios";
+import codigoadmin from "../../mocks/codigoadmin";
 import "./Register.css";
 
 function Register() {
@@ -8,6 +9,8 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("");
+  const [codigoadminInput, setcodigoadminInput] = useState("");
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
@@ -19,7 +22,8 @@ function Register() {
       username === "" ||
       email === "" ||
       password === "" ||
-      confirmPassword === ""
+      confirmPassword === "" ||
+      role === ""
     ) {
       setError("Debes completar todos los campos.");
       return;
@@ -27,6 +31,11 @@ function Register() {
 
     if (password !== confirmPassword) {
       setError("Las contraseñas no coinciden.");
+      return;
+    }
+
+    if (role === "Administrador" && codigoadminInput !== codigoadmin) {
+      setError("El código de administrador es incorrecto.");
       return;
     }
 
@@ -52,7 +61,7 @@ function Register() {
       username: username,
       email: email,
       password: password,
-      role: "Jugador"
+      role: role
     });
 
     setError("");
@@ -99,6 +108,31 @@ function Register() {
           value={confirmPassword}
           onChange={(event) => setConfirmPassword(event.target.value)}
         />
+
+        <label htmlFor="role">Tipo de usuario</label>
+
+        <select
+          id="role"
+          value={role}
+          onChange={(event) => setRole(event.target.value)}
+        >
+          <option value="">Selecciona un tipo de usuario</option>
+          <option value="Jugador">Jugador</option>
+          <option value="Administrador">Administrador</option>
+        </select>
+
+        {role === "Administrador" && (
+          <>
+            <label htmlFor="admin-code">Código de administrador</label>
+
+            <input
+              id="admin-code"
+              type="password"
+              value={codigoadminInput}
+              onChange={(event) => setcodigoadminInput(event.target.value)}
+            />
+          </>
+        )}
 
         {error && <p className="register-error">{error}</p>}
 
