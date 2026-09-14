@@ -1,0 +1,37 @@
+.tutorial {
+  min-height: calc(100vh - 60px);
+  background-image: url("../../assets/landing-background.png");
+  background-size: cover;
+  background-position: center;
+
+  color: white;
+  font-family: "Bree Serif", serif;
+  padding: 40px;
+}
+
+.tutorial h1 {
+  font-size: 70px;
+  text-align: center;
+  margin-top: 0;
+}
+
+.tutorial-section {
+  max-width: 1000px;
+  margin: 0 auto 30px auto;
+  padding: 25px;
+
+  background-color: #10283d;
+  border-radius: 15px;
+}
+
+.tutorial-section h2 {
+  font-size: 35px;
+  color: #f2c94c;
+  margin-top: 0;
+}
+
+.tutorial-section p,
+.tutorial-section li {
+  font-size: 22px;
+  line-height: 1.5;
+}

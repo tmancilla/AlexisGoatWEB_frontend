@@ -29,7 +29,8 @@
   font-size: 25px;
 }
 
-.register-form input {
+.register-form input,
+.register-form select {
   height: 50px;
   font-size: 20px;
   padding: 10px;
