@@ -5,10 +5,15 @@ export default [
     ignores: ["node_modules/**"],
   },
   {
-    files: ["**/*.js"],
+    files: ["**/*.js", "**/*.jsx"],
     languageOptions: {
       ecmaVersion: 2021,
       sourceType: "module",
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true
+        }
+      },
       globals: {
         ...builtinModules.reduce((acc, mod) => {
           acc[mod] = "readonly";
