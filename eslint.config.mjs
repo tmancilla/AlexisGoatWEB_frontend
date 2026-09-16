@@ -1,4 +1,5 @@
 import { builtinModules } from 'module';
+import globals from 'globals';
 
 export default [
   {
@@ -19,8 +20,8 @@ export default [
           acc[mod] = "readonly";
           return acc;
         }, {}),
-        browser: true,
-        node: true
+        ...globals.browser,
+        ...globals.node
       }
     },
     rules: {
