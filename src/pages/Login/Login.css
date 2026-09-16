@@ -1,46 +1,50 @@
 .login {
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - var(--navbar-height));
   background-image: url("../../assets/landing-background.png");
   background-size: cover;
   background-position: center;
 
   color: white;
   font-family: "Bree Serif", serif;
+  padding: clamp(15px, 3vmin, 40px) clamp(15px, 4vw, 40px);
 
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 .login h1 {
-  font-size: 70px;
-  margin-bottom: 40px;
+  font-size: clamp(26px, 6vmin, 62px);
+  margin: 0 0 clamp(18px, 3.5vmin, 38px);
+  text-align: center;
 }
 
 .login-form {
-  width: 450px;
+  width: 100%;
+  max-width: 430px;
 
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: clamp(10px, 1.8vmin, 15px);
 }
 
 .login-form label {
-  font-size: 25px;
+  font-size: clamp(14px, 2.2vmin, 24px);
 }
 
 .login-form input {
-  height: 50px;
-  font-size: 20px;
+  height: clamp(38px, 5vmin, 48px);
+  font-size: clamp(15px, 2vmin, 20px);
   padding: 10px;
 }
 
 .login-form button {
-  height: 70px;
-  margin-top: 20px;
+  height: clamp(46px, 6vmin, 66px);
+  margin-top: clamp(12px, 2vmin, 20px);
 
   font-family: "Bree Serif", serif;
-  font-size: 25px;
+  font-size: clamp(16px, 2.4vmin, 24px);
   color: white;
   background-color: #184063;
 
@@ -51,6 +55,6 @@
 
 .login-error {
   color: #f2c94c;
-  font-size: 20px;
+  font-size: clamp(14px, 1.9vmin, 20px);
   margin: 0;
 }

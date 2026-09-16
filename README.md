@@ -57,4 +57,4 @@ Se utilizó Claude (Anthropic) como asistente durante el desarrollo, principalme
 
 - Configuración inicial del entorno de desarrollo (Node, Vite, React Router, ESLint) y resolución de problemas de WSL/permisos durante el setup.
 - Diseñar nuestras ideas para los mockups de landing page, registro de usuario y pantallas de juego.
-- Ayuda para el diseño del README
+- Apoyo para que la pagina sea responsiva

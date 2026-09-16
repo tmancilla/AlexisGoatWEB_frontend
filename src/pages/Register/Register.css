@@ -1,47 +1,51 @@
 .register {
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - var(--navbar-height));
   background-image: url("../../assets/landing-background.png");
   background-size: cover;
   background-position: center;
 
   color: white;
   font-family: "Bree Serif", serif;
+  padding: clamp(15px, 3vmin, 40px) clamp(15px, 4vw, 40px);
 
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 .register h1 {
-  font-size: 70px;
-  margin-bottom: 40px;
+  font-size: clamp(24px, 5.5vmin, 58px);
+  margin: 0 0 clamp(15px, 2.5vmin, 28px);
+  text-align: center;
 }
 
 .register-form {
-  width: 450px;
+  width: 100%;
+  max-width: 430px;
 
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: clamp(7px, 1.3vmin, 13px);
 }
 
 .register-form label {
-  font-size: 25px;
+  font-size: clamp(13px, 2vmin, 22px);
 }
 
 .register-form input,
 .register-form select {
-  height: 50px;
-  font-size: 20px;
-  padding: 10px;
+  height: clamp(34px, 4.5vmin, 46px);
+  font-size: clamp(14px, 1.9vmin, 19px);
+  padding: 8px 10px;
 }
 
 .register-form button {
-  height: 70px;
-  margin-top: 20px;
+  height: clamp(42px, 5.5vmin, 62px);
+  margin-top: clamp(10px, 1.6vmin, 18px);
 
   font-family: "Bree Serif", serif;
-  font-size: 25px;
+  font-size: clamp(16px, 2.3vmin, 24px);
   color: white;
   background-color: #516953;
 
@@ -52,6 +56,6 @@
 
 .register-error {
   color: #f2c94c;
-  font-size: 20px;
+  font-size: clamp(13px, 1.8vmin, 19px);
   margin: 0;
 }

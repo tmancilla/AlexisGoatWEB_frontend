@@ -1,5 +1,17 @@
 @import url("https://fonts.googleapis.com/css2?family=Bree+Serif&display=swap");
 
+:root {
+  --navbar-height: 60px;
+}
+
+/* La navbar envuelve en dos filas bajo este ancho: las páginas leen esta
+   altura para que su alto mínimo siga calzando con el viewport. */
+@media (max-width: 480px) {
+  :root {
+    --navbar-height: 100px;
+  }
+}
+
 * {
   box-sizing: border-box;
 }

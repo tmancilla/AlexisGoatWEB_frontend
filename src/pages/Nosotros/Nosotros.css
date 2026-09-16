@@ -1,58 +1,60 @@
 .nosotros {
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - var(--navbar-height));
   background-color: #10283d;
   color: white;
-  padding: 50px;
+  padding: clamp(18px, 3.5vmin, 45px) clamp(15px, 4vw, 50px);
   font-family: "Bree Serif", serif;
 }
 
 .nosotros h1 {
-  font-size: 70px;
+  font-size: clamp(24px, 5.5vmin, 58px);
   text-align: center;
   margin-top: 0;
+  margin-bottom: clamp(18px, 3vmin, 34px);
 }
 
 .nosotros-proyecto {
-  max-width: 900px;
+  max-width: 800px;
   margin: auto;
   text-align: center;
 }
 
 .nosotros-proyecto h2 {
-  font-size: 40px;
+  font-size: clamp(19px, 3.2vmin, 36px);
 }
 
 .nosotros-proyecto p {
-  font-size: 25px;
+  font-size: clamp(14px, 2vmin, 22px);
+  line-height: 1.5;
 }
 
 .nosotros-equipo {
-  margin-top: 60px;
+  margin-top: clamp(25px, 4.5vmin, 55px);
   text-align: center;
 }
 
 .nosotros-equipo h2 {
-  font-size: 40px;
+  font-size: clamp(19px, 3.2vmin, 36px);
 }
 
 .equipo {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 280px));
   justify-content: center;
-  gap: 40px;
+  gap: clamp(15px, 2.5vmin, 36px);
 }
 
 .integrante {
-  width: 300px;
   background-color: #184063;
   border-radius: 15px;
-  padding: 25px;
+  padding: clamp(14px, 2.2vmin, 24px);
 }
 
 .integrante h3 {
-  font-size: 30px;
+  font-size: clamp(17px, 2.5vmin, 28px);
   margin-top: 0;
 }
 
 .integrante p {
-  font-size: 22px;
+  font-size: clamp(14px, 1.9vmin, 21px);
 }
