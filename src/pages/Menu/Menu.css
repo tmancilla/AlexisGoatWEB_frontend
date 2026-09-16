@@ -1,0 +1,157 @@
+.menu {
+  min-height: calc(100vh - var(--navbar-height));
+  background-image: url("../../assets/landing-background.png");
+  background-size: cover;
+  background-position: center;
+
+  color: white;
+  font-family: "Bree Serif", serif;
+  padding: clamp(8px, 1.5vmin, 22px) clamp(15px, 3vw, 40px)
+    clamp(15px, 3vmin, 40px);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.menu-salir {
+  position: absolute;
+  top: clamp(10px, 1.5vmin, 20px);
+  left: clamp(10px, 1.5vmin, 20px);
+
+  padding: clamp(5px, 1vmin, 10px) clamp(14px, 2.5vmin, 28px);
+  font-family: "Bree Serif", serif;
+  font-size: clamp(14px, 2.4vmin, 26px);
+  color: white;
+  background-color: #10283d;
+
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.menu-logo {
+  width: clamp(150px, 38vmin, 420px);
+  margin-bottom: clamp(6px, 1.2vmin, 15px);
+}
+
+.menu h1 {
+  font-size: clamp(24px, 8vmin, 80px);
+  margin: 0 0 clamp(15px, 3vmin, 36px);
+  text-align: center;
+}
+
+.menu-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(12px, 3vmin, 40px);
+}
+
+.menu-buttons button {
+  width: clamp(145px, 35vmin, 395px);
+  height: clamp(70px, 17.5vmin, 170px);
+  padding: 10px;
+
+  font-family: "Bree Serif", serif;
+  font-size: clamp(15px, 3.6vmin, 43px);
+  color: white;
+
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.menu-buttons button:nth-child(1) {
+  background-color: #184063;
+}
+
+.menu-buttons button:nth-child(2) {
+  background-color: #516953;
+}
+
+.menu-buttons button:nth-child(3) {
+  background-color: #5b377f;
+}
+
+.menu-panel {
+  width: 100%;
+  max-width: 600px;
+  padding: clamp(18px, 3.5vmin, 38px);
+
+  background-color: #10283d;
+  border-radius: 15px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.menu-panel h2 {
+  font-size: clamp(22px, 5vmin, 44px);
+  margin: 0 0 clamp(12px, 2vmin, 20px);
+  text-align: center;
+}
+
+.menu-estado {
+  font-size: clamp(14px, 2.4vmin, 26px);
+  color: #f2c94c;
+  margin: 0 0 clamp(12px, 2vmin, 20px);
+  text-align: center;
+}
+
+.menu-label {
+  font-size: clamp(14px, 2.4vmin, 26px);
+  margin: 0 0 10px;
+  text-align: center;
+}
+
+.menu-codigo {
+  font-size: clamp(30px, 7vmin, 70px);
+  color: #f2c94c;
+  letter-spacing: 5px;
+  margin: 10px 0 clamp(15px, 2.5vmin, 28px);
+  text-align: center;
+  word-break: break-all;
+}
+
+.menu-panel button {
+  width: 100%;
+  height: clamp(46px, 6.5vmin, 68px);
+  margin-top: clamp(12px, 2vmin, 20px);
+
+  font-family: "Bree Serif", serif;
+  font-size: clamp(16px, 2.6vmin, 26px);
+  color: white;
+  background-color: #184063;
+
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.menu-form {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.8vmin, 15px);
+}
+
+.menu-form label {
+  font-size: clamp(14px, 2.4vmin, 26px);
+}
+
+.menu-form input {
+  height: clamp(38px, 5vmin, 50px);
+  font-size: clamp(15px, 2vmin, 21px);
+  padding: 10px;
+}
+
+.menu-error {
+  color: #f2c94c;
+  font-size: clamp(14px, 1.9vmin, 20px);
+  margin: 0;
+}
