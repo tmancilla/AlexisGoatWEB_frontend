@@ -68,7 +68,7 @@ function Menu() {
   }
 
   function handleEntrarAlTablero() {
-    navigate("/tablero");
+    navigate("/preparacion");
   }
 
   return (
@@ -165,7 +165,7 @@ function Menu() {
           )}
 
           <button type="button" onClick={handleEntrarAlTablero}>
-            Entrar al tablero
+            Desplegar flota
           </button>
         </section>
       )}

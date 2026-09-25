@@ -1,0 +1,35 @@
+/* una columna extra al principio para los numeros de fila, las otras 10 son el tablero */
+.tablero {
+  width: 100%;
+  max-width: 620px;
+
+  display: grid;
+  grid-template-columns: auto repeat(10, 1fr);
+  gap: clamp(1px, 0.4vmin, 4px);
+
+  padding: clamp(6px, 1.2vmin, 14px);
+  background-color: #10283d;
+  border-radius: 15px;
+}
+
+.tablero-label {
+  font-family: "Bree Serif", serif;
+  font-size: clamp(9px, 1.5vmin, 16px);
+  color: #f2c94c;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tablero-esquina,
+.tablero-label:first-of-type {
+  min-width: clamp(12px, 2vmin, 22px);
+}
+
+@media (max-width: 600px) {
+  .tablero {
+    padding: 5px;
+    border-radius: 8px;
+  }
+}

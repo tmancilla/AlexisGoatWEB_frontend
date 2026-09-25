@@ -1,0 +1,113 @@
+.celda {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  padding: 0;
+
+  background-color: #16405f;
+  border: 1px solid #0b2236;
+  border-radius: 4px;
+  cursor: pointer;
+
+  font-family: "Bree Serif", serif;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.celda:disabled {
+  cursor: default;
+}
+
+.celda:hover:not(:disabled) {
+  border-color: #f2c94c;
+}
+
+/* casilla que el jugador todavia no descubre, es el default del tablero */
+.celda--niebla {
+  background-color: #0d2032;
+}
+
+/* zona de despliegue propia, se usa en la pantalla de preparacion */
+.celda--zona {
+  background-color: #1d4f58;
+}
+
+/* casilla a la que el barco seleccionado si puede llegar */
+.celda--disponible {
+  background-color: #2f6b45;
+  box-shadow: inset 0 0 0 2px #7fd8a0;
+}
+
+.celda--seleccionada {
+  box-shadow: inset 0 0 0 3px #f2c94c;
+}
+
+.celda-recurso {
+  font-size: clamp(11px, 2.2vmin, 22px);
+  line-height: 1;
+}
+
+.celda-barco {
+  width: 72%;
+  height: 72%;
+  border-radius: 50%;
+
+  font-size: clamp(10px, 1.9vmin, 20px);
+  line-height: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.celda-barco--propio {
+  background-color: #f2c94c;
+  color: #10283d;
+}
+
+.celda-barco--enemigo {
+  background-color: #a83d3d;
+  color: white;
+}
+
+.celda-barco--perdido {
+  background-color: transparent;
+  border: 2px dashed #a83d3d;
+  color: #d98a8a;
+}
+
+/* el casco restante va en una esquina para no tapar la letra del barco */
+.celda-casco {
+  position: absolute;
+  right: 1px;
+  bottom: 0;
+  font-size: clamp(8px, 1.3vmin, 14px);
+  color: #7fd8a0;
+}
+
+.celda-hundido {
+  position: absolute;
+  font-size: clamp(14px, 2.6vmin, 28px);
+  color: #0b2236;
+}
+
+.celda-contacto {
+  position: absolute;
+  left: 2px;
+  top: 0;
+  font-size: clamp(8px, 1.3vmin, 14px);
+  color: white;
+}
+
+@media (max-width: 600px) {
+  .celda {
+    border-radius: 2px;
+  }
+  .celda-casco,
+  .celda-contacto {
+    display: none;
+  }
+}

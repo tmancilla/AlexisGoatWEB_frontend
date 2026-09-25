@@ -1,0 +1,109 @@
+.panel {
+  width: 100%;
+  max-width: 340px;
+
+  font-family: "Bree Serif", serif;
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.6vmin, 18px);
+}
+
+.panel-bloque {
+  padding: clamp(12px, 2vmin, 20px);
+  background-color: #10283d;
+  border-radius: 15px;
+}
+
+.panel-bloque h2 {
+  font-size: clamp(15px, 2.2vmin, 24px);
+  color: #f2c94c;
+  margin: 0 0 clamp(8px, 1.4vmin, 14px);
+}
+
+.panel-recursos,
+.panel-acciones {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.panel-recurso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: clamp(13px, 1.8vmin, 20px);
+}
+
+.panel-recurso-simbolo {
+  font-size: clamp(16px, 2.2vmin, 24px);
+}
+
+/* el nombre se estira para que todos los numeros queden alineados a la derecha */
+.panel-recurso-nombre {
+  flex: 1;
+}
+
+.panel-recurso-valor {
+  min-width: 34px;
+  text-align: right;
+  color: #f2c94c;
+  font-size: clamp(15px, 2.2vmin, 24px);
+}
+
+.panel-turno {
+  margin: 0 0 8px;
+  padding: 6px 12px;
+  border-radius: 15px;
+  text-align: center;
+  font-size: clamp(13px, 1.8vmin, 20px);
+  background-color: #3a2f4f;
+}
+
+.panel-turno--mio {
+  background-color: #2f6b45;
+}
+
+.panel-dato {
+  margin: 0 0 6px;
+  font-size: clamp(12px, 1.6vmin, 18px);
+}
+
+.panel-reloj {
+  color: #f2c94c;
+}
+
+.panel-acciones {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.panel-accion {
+  flex: 1;
+  padding: 5px 2px;
+  border-radius: 8px;
+  background-color: #1d3247;
+  text-align: center;
+  font-size: clamp(9px, 1.2vmin, 13px);
+  color: #7c93a8;
+}
+
+.panel-accion--libre {
+  background-color: #2f6b45;
+  color: white;
+}
+
+.panel-evento {
+  margin: 0 0 6px;
+  color: #f2c94c;
+  font-size: clamp(14px, 2vmin, 22px);
+}
+
+@media (max-width: 900px) {
+  .panel {
+    max-width: 620px;
+  }
+}

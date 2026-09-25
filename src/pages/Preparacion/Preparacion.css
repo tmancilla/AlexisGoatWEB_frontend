@@ -1,0 +1,178 @@
+.preparacion {
+  min-height: calc(100vh - var(--navbar-height));
+  background-image: linear-gradient(rgba(7, 20, 33, 0.55), rgba(7, 20, 33, 0.8)),
+    url("../../assets/landing-background.png");
+  background-size: cover;
+  background-position: center;
+
+  padding: clamp(12px, 2.5vmin, 30px) clamp(15px, 3vw, 40px);
+
+  font-family: "Bree Serif", serif;
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(12px, 2vmin, 24px);
+}
+
+.preparacion-header {
+  text-align: center;
+  text-shadow: 0 2px 6px rgba(7, 20, 33, 0.9);
+}
+
+.preparacion h1 {
+  font-size: clamp(22px, 5vmin, 50px);
+  margin: 0;
+}
+
+.preparacion-ayuda {
+  font-size: clamp(13px, 1.8vmin, 20px);
+  margin: 8px 0 0;
+}
+
+.preparacion-reloj {
+  font-size: clamp(14px, 2vmin, 22px);
+  color: #f2c94c;
+  margin: 6px 0 0;
+}
+
+/* tablero y flota lado a lado, en pantallas chicas se apilan */
+.preparacion-contenido {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: clamp(12px, 2.5vmin, 30px);
+}
+
+.preparacion-flota {
+  width: 100%;
+  max-width: 380px;
+  padding: clamp(12px, 2vmin, 20px);
+  background-color: #10283d;
+  border-radius: 15px;
+}
+
+.preparacion-flota h2 {
+  font-size: clamp(16px, 2.2vmin, 24px);
+  color: #f2c94c;
+  margin: 0 0 clamp(8px, 1.4vmin, 14px);
+}
+
+.preparacion-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preparacion-barco {
+  width: 100%;
+  padding: 8px 10px;
+
+  font-family: "Bree Serif", serif;
+  color: white;
+  text-align: left;
+  background-color: #1d3247;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.preparacion-barco--activo {
+  border-color: #f2c94c;
+}
+
+.preparacion-barco-letra {
+  width: clamp(26px, 3.6vmin, 38px);
+  height: clamp(26px, 3.6vmin, 38px);
+  border-radius: 50%;
+  background-color: #f2c94c;
+  color: #10283d;
+  font-size: clamp(13px, 1.8vmin, 20px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.preparacion-barco-datos {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.preparacion-barco-nombre {
+  font-size: clamp(13px, 1.7vmin, 19px);
+}
+
+.preparacion-barco-stats {
+  font-size: clamp(10px, 1.2vmin, 14px);
+  color: #9db4c7;
+}
+
+.preparacion-barco-posicion {
+  font-size: clamp(13px, 1.8vmin, 20px);
+  color: #f2c94c;
+  min-width: 36px;
+  text-align: right;
+}
+
+.preparacion-progreso {
+  font-size: clamp(12px, 1.6vmin, 18px);
+  margin: clamp(10px, 1.6vmin, 16px) 0 0;
+}
+
+.preparacion-error {
+  font-size: clamp(12px, 1.6vmin, 18px);
+  color: #f2c94c;
+  margin: 6px 0 0;
+}
+
+.preparacion-botones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: clamp(10px, 1.6vmin, 16px);
+}
+
+.preparacion-botones button {
+  flex: 1;
+  min-width: 130px;
+  padding: 10px;
+
+  font-family: "Bree Serif", serif;
+  font-size: clamp(12px, 1.6vmin, 18px);
+  color: white;
+  background-color: #184063;
+
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.preparacion-botones .preparacion-confirmar {
+  background-color: #516953;
+}
+
+.preparacion-botones button:disabled {
+  background-color: #3a4a57;
+  color: #8fa3b3;
+  cursor: default;
+}
+
+@media (max-width: 900px) {
+  .preparacion-flota {
+    max-width: 620px;
+  }
+}
