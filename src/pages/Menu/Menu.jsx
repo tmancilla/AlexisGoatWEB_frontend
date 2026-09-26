@@ -5,7 +5,7 @@ import lobby from "../../mocks/lobby";
 import logo from "../../assets/logo-guerra-pacifico.png";
 import "./Menu.css";
 
-function Menu() {
+function Menu({onLogout}) {
   const [vista, setVista] = useState("menu");
   const [partida, setPartida] = useState(null);
   const [codigo, setCodigo] = useState("");
@@ -15,6 +15,7 @@ function Menu() {
 
   function handleSalir() {
     if (vista === "menu") {
+      onLogout();
       navigate("/login");
       return;
     }

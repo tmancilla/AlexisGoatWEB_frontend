@@ -15,6 +15,20 @@ const ACCIONES_POR_BARCO = 2;
 // el enunciado da 3 minutos por turno, al llegar a cero el turno se cierra solo
 const SEGUNDOS_TURNO = 180;
 
+const TEXTO_MOTIVO = {
+  FLOTA_DESTRUIDA: "destrucción de la flota",
+  LIMITE_RONDAS: "límite de rondas",
+  ABANDONO: "abandono"
+};
+
+const NOMBRES_DETALLE = {
+  barcosAFlote: "Barcos a flote",
+  cascoRestante: "Casco restante",
+  enemigosHundidos: "Enemigos hundidos",
+  casillasRecurso: "Casillas de recurso",
+  mejoras: "Mejoras"
+};
+
 function copiar(objeto) {
   return JSON.parse(JSON.stringify(objeto));
 }
@@ -216,6 +230,20 @@ function Partida() {
     navigate("/menu");
   }
 
+  function handleAbandonar() {
+    setEstado((anterior) => ({
+      ...anterior,
+      estado: "TERMINADA",
+      resultadoFinal: {
+        ...copiar(partida.terminada.contenido.resultadoFinal),
+        motivo: "ABANDONO",
+        ganador: anterior.rival.jugadorId
+      }
+    }));
+    setSeleccionado(null);
+    setMensaje("");
+  }
+
   const resultado = estado.resultadoFinal;
 
   return (
@@ -250,7 +278,7 @@ function Partida() {
               {esMiTurno ? "Terminar turno" : "Simular turno del rival"}
             </button>
 
-            <button type="button" onClick={handleVolverAlMenu} disabled={!enCurso}>
+            <button type="button" onClick={handleAbandonar} disabled={!enCurso}>
               Abandonar
             </button>
           </div>
@@ -273,18 +301,30 @@ function Partida() {
           <h2>Partida terminada</h2>
 
           <p className="partida-motivo">
-            {resultado.ganador === estado.yo.jugadorId ? "Ganaste" : "Perdiste"} por{" "}
-            {resultado.motivo.replace("_", " ").toLowerCase()}
+            {resultado.motivo === "EMPATE"
+              ? "La partida terminó en empate"
+              : `${resultado.ganador === estado.yo.jugadorId ? "Ganaste" : "Perdiste"} por ${TEXTO_MOTIVO[resultado.motivo]}`}
           </p>
 
           <ul className="partida-puntajes">
             {Object.entries(resultado.puntajes).map(([jugadorId, puntaje]) => (
               <li key={jugadorId}>
-                <span className="partida-puntaje-jugador">
-                  Jugador {jugadorId}
-                  {Number(jugadorId) === estado.yo.jugadorId ? " (tú)" : ""}
-                </span>
-                <span className="partida-puntaje-total">{puntaje.total} pts</span>
+                <div className="partida-puntaje-fila">
+                  <span className="partida-puntaje-jugador">
+                    Jugador {jugadorId}
+                    {Number(jugadorId) === estado.yo.jugadorId ? " (tú)" : ""}
+                  </span>
+                  <span className="partida-puntaje-total">{puntaje.total} pts</span>
+                </div>
+
+                <ul className="partida-detalle">
+                  {Object.entries(puntaje.detalle).map(([categoria, puntos]) => (
+                    <li key={categoria}>
+                      <span>{NOMBRES_DETALLE[categoria]}</span>
+                      <span>{puntos}</span>
+                    </li>
+                  ))}
+                </ul>
               </li>
             ))}
           </ul>

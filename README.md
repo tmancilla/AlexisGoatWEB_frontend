@@ -51,10 +51,11 @@ URL de producción: PENDIENTE
 
 https://github.com/users/vvialbarros/projects/1/views/1?filterQuery=assignee%3Atmancilla
 
-## Uso de Inteligencia Artificial
+## Supuestos y decisiones técnicas
 
-Se utilizó Claude (Anthropic) como asistente durante el desarrollo, principalmente para:
+- Datos mock: como todavía no hay backend, los datos mocks estan en src/mocks/ y siguen la estructura definida en el protocolo json, para que conectar el servidor después no cambie la forma de los datos.
+- Estado local: cada página usa `useState`. Solo el usuario con sesión iniciada vive en `App.jsx` y se pasa por props, porque lo necesitan pocos componentes.
+- Vistas internas en el Menú: Crear partida, unirse por código y buscar partida son vistas dentro de `/menu` (controladas con estado) y no rutas separadas, porque son pasos de un mismo proceso y comparten los datos de la partida.
+- Navbar siempre visible: Durante el despliegue y la partida se ocultan los links que sacarían al jugador del juego. Para salir se usa el botón "Abandonar" de cada pantalla.
 
-- Configuración inicial del entorno de desarrollo (Node, Vite, React Router, ESLint) y resolución de problemas de WSL/permisos durante el setup.
-- Diseñar nuestras ideas para los mockups de landing page, registro de usuario y pantallas de juego.
-- Apoyo para que la pagina sea responsiva
+- **Alcance:** en el tablero está implementada la acción Mover; Disparar, Vigía y Mejorar quedan definidas en el protocolo para entregas siguientes.

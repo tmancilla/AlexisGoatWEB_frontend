@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import usuarios from "../../mocks/usuarios";
 import "./Login.css";
 
-function Login() {
+function Login({onLogin}) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -29,6 +29,7 @@ function Login() {
     }
 
     setError("");
+    onLogin({ username: usuario.username, role: usuario.role });
     navigate("/menu");
   }
 

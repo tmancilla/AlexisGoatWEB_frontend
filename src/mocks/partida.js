@@ -10,7 +10,7 @@ const partida = {
       turnoExpiraEn: "2026-09-20T15:42:00Z",
       eventoRonda: {
         carta: "TORMENTA",
-        efecto: "Radio de detección -1 esta ronda"
+        efecto: "Radio de detección -1 para todos los barcos esta ronda"
       },
 
       yo: {
@@ -134,7 +134,7 @@ const partida = {
       turnoExpiraEn: "2026-09-21T09:40:00Z",
       eventoRonda: {
         carta: "MAREA_ALTA",
-        efecto: "El nivel del agua sube: las corrientes peligrosas quedan ocultas hasta sufrirlas"
+        efecto: "Las corrientes peligrosas no hacen daño esta ronda"
       },
 
       yo: {

@@ -126,13 +126,30 @@
   gap: 8px;
 }
 
-.partida-puntajes li {
-  display: flex;
-  justify-content: space-between;
+.partida-puntajes > li {
   padding: 8px 12px;
   background-color: #1d3247;
   border-radius: 10px;
   font-size: clamp(12px, 1.6vmin, 18px);
+}
+
+.partida-puntaje-fila {
+  display: flex;
+  justify-content: space-between;
+}
+
+.partida-detalle {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  text-align: left;
+  font-size: clamp(11px, 1.4vmin, 15px);
+  opacity: 0.85;
+}
+
+.partida-detalle li {
+  display: flex;
+  justify-content: space-between;
 }
 
 .partida-puntaje-total {

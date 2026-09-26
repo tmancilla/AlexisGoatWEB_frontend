@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useState } from "react";
 
 import Navbar from "./components/Navbar/Navbar";
 import Landing from "./pages/Landing/Landing";
@@ -11,15 +12,22 @@ import Preparacion from "./pages/Preparacion/Preparacion";
 import Partida from "./pages/Partida/Partida";
 
 function App() {
+
+  const [usuario, setUsuario] = useState(null);
+
+  function handleLogout() {
+    setUsuario(null);
+  }
+
   return (
     <BrowserRouter>
-      <Navbar />
+      <Navbar usuario={usuario} onLogout={handleLogout} />
 
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Login onLogin={setUsuario} />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/menu" element={<Menu />} />
+        <Route path="/menu" element={<Menu onLogout={handleLogout} />} />
         <Route path="/tutorial" element={<Tutorial />} />
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/preparacion" element={<Preparacion />} />
