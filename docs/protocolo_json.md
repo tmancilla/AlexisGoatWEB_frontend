@@ -20,7 +20,7 @@ Authorization: Bearer <token>
 ```
 
 ## 3. Objeto Estado de Partida
-Representa una partida activa desde el punto de vista de un jugador: todo lo que ese jugador no puede ver está ausente del mensaje. Es el `contenido` del mensaje `ESTADO_PARTIDA` (punto 5.2) y también lo que devuelve `GET /games/:id` (punto 4.6).
+Representa una partida activa desde el punto de vista de un jugador: todo lo que ese jugador no puede ver está ausente del mensaje. El ejemplo muesta el mensaje `ESTADO_PARTIDA` (punto 5.2). `GET /games/:id` (punto 4.6) devuelve solo lo que va dentro de contenido.
 
 ```json
 {
@@ -50,7 +50,7 @@ Representa una partida activa desde el punto de vista de un jugador: todo lo que
           "tipo": "DESTRUCTOR",
           "casilla": { "x": 7, "y": 6 },
           "casco": 2,
-          "cascoMaximo": 3,
+          "cascoMaximo": 4,
           "movimiento": 2,
           "alcance": 4,
           "deteccion": 2,
@@ -133,7 +133,7 @@ Representa una partida activa desde el punto de vista de un jugador: todo lo que
 }
 ```
 
-`motivo` puede ser: `FLOTA_DESTRUIDA` o `LIMITE_RONDAS` o `ABANDONO` o `EMPATE`
+`motivo` puede ser: `FLOTA_DESTRUIDA` o `LIMITE_RONDAS` o `ABANDONO` o `EMPATE`. En caso de `EMPATE`, `ganador` es `null`.
 
 ### 3.1 Valores posibles
 
@@ -149,7 +149,7 @@ Representa una partida activa desde el punto de vista de un jugador: todo lo que
 
 | Campo | Qué se envía |
 |---|---|
-| `yo.flota` | Info de tu flota completa siempre. Un barco hundido **no se borra** del array: se queda con `aFlote: false`, `casco: 0` y su última `casilla`, para poder pintar el marcador de hundido |
+| `yo.flota` | Info de tu flota completa siempre. Un barco hundido no se borra del array, se queda con `aFlote: false`, `casco: 0` y su última `casilla`, para poder pintar el marcador de hundido |
 | `yo.recursos` | Info completa de tus recursos siempre |
 | `rival.recursos` | Nunca se envía. Solo `barcosAFlote` |
 | `casillasVisibles` | Solo las que están dentro del radio de detección de algún barco propio |
@@ -157,6 +157,7 @@ Representa una partida activa desde el punto de vista de un jugador: todo lo que
 | `contactosEnemigos[].casco` | El valor real si el barco está dentro del radio, `null` si no |
 | `contactosEnemigos[].visible` | `false` indica contacto perdido: última posición conocida más la ronda en que se vio |
 | `contactosEnemigos[].aFlote` | Igual que `yo.flota.aFlote`: cuando se hunde, no se borra del array, queda con `aFlote: false`, `casco: 0` y `visible: true` en su casilla final |
+| `casillasVisibles[].ocupadaPor` | Solo en casillas de recurso: `barcoId` del barco que la ocupa, o `null` si está libre |
 
 ## 4. Endpoints REST
 
@@ -193,8 +194,8 @@ Representa una partida activa desde el punto de vista de un jugador: todo lo que
 
 | Codigo | `error` 
 |---|---
-| `400` | `EMAIL_INVALIDO`
-| `400` | `CONTRASEÑA_DEBIL` 
+| `400` | `EMAIL_INVALIDO` 
+| `409` | `USERNAME_YA_REGISTRADO`
 | `409` | `EMAIL_YA_REGISTRADO`
 | `403` | `CODIGO_ADMIN_INVALIDO`
 
@@ -238,7 +239,7 @@ Representa una partida activa desde el punto de vista de un jugador: todo lo que
 
 `expiraEn` marca los 5 minutos tras los cuales un lobby sin invitado se cierra automáticamente.
 
-`codigoInvitacion` solo sirve para `POST /games/:codigo/join` (4.4), es lo único que se le comparte al invitado. `partidaId` es el identificador real de la partida y es lo que se usa en todos los demás endpoints (4.6 a 4.10) y en el WebSocket (`CONECTAR`, punto 5.1).
+`codigoInvitacion` solo sirve para `POST /games/:codigo/join`, es lo único que se le comparte al invitado. `partidaId` es el identificador real de la partida y es lo que se usa en todos los demás endpoints (4.6 a 4.10) y en el WebSocket (`CONECTAR`, punto 5.1).
 
 **Errores**
 
@@ -248,6 +249,8 @@ Representa una partida activa desde el punto de vista de un jugador: todo lo que
 
 
 ### 4.4 POST /games/:codigo/join : unirse por código
+
+**Request:** cuerpo vacío. El código de invitación va en la URL y el invitado se identifica por el token.
 
 **Response `200 OK`**
 
@@ -276,6 +279,8 @@ Existe el role fuera de la partida: Jugador o Administrador; y el rolPartida den
 
 ### 4.5 POST /games/matchmaking : emparejamiento automático
 
+**Request:** cuerpo vacío. El usuario se identifica por el token.
+
 **Response `200 OK`**, se encontró rival:
 
 ```json
@@ -295,6 +300,8 @@ Existe el role fuera de la partida: Jugador o Administrador; y el rolPartida den
 }
 ```
 
+Mientras está en cola, el cliente vuelve a llamar a `POST /games/matchmaking` cada pocos segundos. Si el usuario ya está en cola, solo devuelve su posición actual. Cuando se encuentra rival, la respuesta pasa a ser `200 OK` con el `partidaId`, y recién ahí el cliente abre el WebSocket `CONECTAR`.
+
 En las partidas por emparejamiento no hay lobby ni roles de dueño/invitado. Ambos jugadores entran directo a la fase de despliegue.
 
 **Errores**
@@ -302,6 +309,7 @@ En las partidas por emparejamiento no hay lobby ni roles de dueño/invitado. Amb
 | Código | `error` 
 |---|---
 | `401` | `TOKEN_INVALIDO`
+| `409` | `YA_ESTAS_EN_PARTIDA` 
 
 
 ### 4.6 GET /games/:id  consultar estado
@@ -334,7 +342,7 @@ Devuelve el Objeto Estado de Partida (ver en punto 3) ya filtrado para el jugado
 }
 ```
 
-**Validaciones:** exactamente cuatro barcos, uno de cada tipo, en casillas distintas, todas dentro de la zona de despliegue propia (filas 1–4 para el jugador 1, filas 7–10 para el jugador 2).
+Validaciones: exactamente cuatro barcos, uno de cada tipo, en casillas distintas, todas dentro de la zona de despliegue propia (filas 1–4 para el jugador 1, filas 7–10 para el jugador 2).
 
 Si un jugador no despliega dentro de 2 minutos, el servidor le asigna posiciones válidas al azar y lo marca como listo.
 
@@ -408,9 +416,14 @@ Movimiento detenido por una corriente peligrosa:
 }
 ```
 
-`detenidoPor` puede ser: `null` o `CORRIENTE_PELIGROSA` o `BARCO_ENEMIGO` o `DESTINO_ALCANZADO`
+`detenidoPor` puede ser: `CORRIENTE_PELIGROSA` o `BARCO_ENEMIGO` o `DESTINO_ALCANZADO`
 
-Disparo con impacto, objetivo dentro del radio de detección del atacante (impacto = true y se indica el cascoRestante):
+`RUTA_BLOQUEADA` se aplica cuando el barco que bloquea el camino es visible para el jugador. Si el camino pasa por un barco enemigo oculto en la niebla, el movimiento se detiene junto a ese barco (`detenidoPor: "BARCO_ENEMIGO"`) y se produce un combate cuerpo a cuerpo.
+
+
+Ejemplos de disparo:
+
+1- Disparo con impacto, objetivo dentro del radio de detección del atacante (impacto = true y se indica el cascoRestante):
 
 ```json
 {
@@ -426,7 +439,7 @@ Disparo con impacto, objetivo dentro del radio de detección del atacante (impac
 }
 ```
 
-Disparo con impacto, objetivo fuera del radio de detección del atacante (impacto = True, pero no se le avisa cascoRestante al atacante):
+2- Disparo con impacto, objetivo fuera del radio de detección del atacante (impacto = True, pero no se le avisa cascoRestante al atacante):
 
 ```json
 {
@@ -442,7 +455,7 @@ Disparo con impacto, objetivo fuera del radio de detección del atacante (impact
 }
 ```
 
-Disparo que hunde al enemigo (hundido = True, cascoRestante = 0):
+3- Disparo que hunde al enemigo (hundido = True, cascoRestante = 0):
 
 ```json
 {
@@ -458,7 +471,7 @@ Disparo que hunde al enemigo (hundido = True, cascoRestante = 0):
 }
 ```
 
-En resumen, `impacto` y `hundido` siempre se informan, incluso si el objetivo estaba en la niebla. Lo único que se oculta es `cascoRestante` cuando el barco sigue a flote y está fuera del radio de detección del atacante (sale `null`). Si el disparo cae en agua, el resultado es `{ "impacto": false }` y nada más.
+ `impacto` y `hundido` siempre se informan, incluso si el objetivo estaba en la niebla. Lo único que se oculta es `cascoRestante` cuando el barco sigue a flote y está fuera del radio de detección del atacante (sale `null`). Si el disparo cae en agua, el resultado es `{ "impacto": false }` y nada más.
 
 Si la acción desencadena un combate cuerpo a cuerpo, el response incluye además:
 
@@ -473,7 +486,7 @@ Si la acción desencadena un combate cuerpo a cuerpo, el response incluye ademá
 }
 ```
 
-`tiradas` es un array porque en caso de empate se relanza hasta que haya un ganador. El combate cuerpo a cuerpo no considera el casco restante: un Acorazado intacto puede perder contra una Lancha.
+`tiradas` es un array porque en caso de empate se relanza hasta que haya un ganador. En el ejemplo, el destructor tiro un 7 en la primera tirada, mientras que la lancha tiro un 3. El combate cuerpo a cuerpo no considera el casco restante: un Acorazado intacto puede perder contra una Lancha.
 
 Vigía (revela un área 3x3 centrada en `centroZona`):
 
@@ -538,15 +551,7 @@ La partida termina de inmediato con victoria para el rival y queda registrada co
 
 ## 5. WebSocket
 
-```json
-{
-  "tipo": "NOMBRE_DEL_MENSAJE",
-  "partidaId": "p-1042",
-  "jugadorId": 2,
-  "timestamp": "2026-09-14T18:12:03Z",
-  "contenido": { }
-}
-```
+Por WebSocket viajan solo dos mensajes: `CONECTAR` (cliente -> servidor) y `ESTADO_PARTIDA` (servidor -> cliente). Todas las acciones de juego van por REST (punto 4).
 
 ### 5.1 `CONECTAR` : cliente -> servidor
 
@@ -556,20 +561,24 @@ Abre y autentica la conexión.
 {
   "tipo": "CONECTAR",
   "partidaId": "p-1",
-  "jugadorId": 2,
   "token": "..."
 }
 ```
 
-El servidor valida el token, registra el socket como conectado a esa partida y responde con el `ESTADO_PARTIDA` actual.
+El servidor valida el token, indentifica al jugador con él, registra el socket como conectado a esa partida y responde con el `ESTADO_PARTIDA` actual.
 
 ### 5.2 `ESTADO_PARTIDA` : servidor -> cliente
 
-Se retransmite a ambos jugadores (cada uno con su propio filtrado) en dos casos: (1) cada vez que una acción REST cambia el estado de la partida, y (2) cuando el servidor detecta que el socket de un jugador se cerró (evento `close`/`disconnect`), sin ninguna acción REST: ahí el servidor arranca la cuenta atrás de `rival.segundosParaAbandono` y retransmite de inmediato al jugador que queda conectado. Estructura completa está en el punto 3.
+```json
+{
+  "tipo": "ESTADO_PARTIDA",
+  "contenido": { }
+}
+```
 
-Como cada jugador recibe su propia copia filtrada, el `jugadorId` del mensaje de websocket es el del destinatario de esa copia (no un valor único compartido entre ambos): el mensaje que llega al socket del jugador 1 trae `jugadorId: 1`, y el que llega al del jugador 2 trae `jugadorId: 2`, aunque ambos describan la misma partida al mismo tiempo.
+`contenido` es el Objeto Estado de Partida del punto 3, filtrado para el jugador que recibe el mensaje.
 
-De este mismo objeto deriva de quién es el turno (`jugadorActivo`), si la partida terminó (`estado: "TERMINADA"` + `resultadoFinal`) y si el rival sigue conectado (`rival.conectado`).
+Se retransmite a ambos jugadores (cada uno con su propio filtrado) en dos casos: (1) cada vez que una acción REST cambia el estado de la partida, y (2) cuando el servidor detecta que el socket de un jugador se cerró (evento `close`/`disconnect`), sin ninguna acción REST: ahí el servidor arranca la cuenta atrás de `rival.segundosParaAbandono` y retransmite de inmediato al jugador que queda conectado.
 
 ## 6. Errores
 
@@ -578,9 +587,7 @@ Formato único para los errores de las acciones de juego (punto 4.7–4.10), dev
 ```json
 {
   "codigo": "COMBUSTIBLE_INSUFICIENTE",
-  "mensaje": "Necesitas 4 de combustible y tienes 2.",
-  "accionDescartada": true,
-  "estadoSinCambios": true
+  "mensaje": "Necesitas 4 de combustible y tienes 2."
 }
 ```
 
@@ -610,7 +617,7 @@ Formato único para los errores de las acciones de juego (punto 4.7–4.10), dev
 
 ## 7. Orden de validación del servidor
 
-Al recibir una acción de juego por REST (punto 4.7–4.10), el servidor evalúa en este orden y se detiene en la primera falla, devolviendo el error correspondiente (punto 6) sin tocar el estado de la partida.
+Al recibir una acción de turno, el servidor evalúa en este orden y se detiene en la primera falla, devolviendo el error correspondiente (punto 6) sin tocar el estado de la partida. Excepciones: desplegar (4.7) exige que la partida esté en `DESPLIEGUE` y abandonar (4.10) se permite en cualquier turno mientras la partida no haya terminado.
 
 Validaciones, en orden:
 
@@ -622,11 +629,4 @@ Validaciones, en orden:
 6. Recursos suficientes -> `COMBUSTIBLE_INSUFICIENTE` , `MUNICION_INSUFICIENTE` , `CHATARRA_INSUFICIENTE`
 7. Casilla de destino u objetivo válida -> `FUERA_DE_MOVIMIENTO` , `FUERA_DE_ALCANCE` , `CASILLA_OCUPADA` , `RUTA_BLOQUEADA` , `FUERA_DEL_TABLERO` , `VIGIA_FUERA_DE_RANGO`
 
-Si todo pasa, el servidor:
-
-8. Aplica el cambio de estado
-9. Resuelve combates desencadenados
-10. Recalcula la visibilidad de ambos jugadores
-11. Responde `200 OK` al emisor (con el `resultado` de la acción en 4.8; cuerpo vacío en 4.7, 4.9 y 4.10)
-12. Retransmite un `ESTADO_PARTIDA` filtrado a cada jugador por WebSocket (punto 5.2)
-13. Persiste el estado en la base de datos
+Si todo pasa, el servidor aplica los cambios y continua el desarrollo del juego.

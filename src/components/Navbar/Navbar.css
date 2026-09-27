@@ -20,10 +20,37 @@
   cursor: pointer;
 }
 
+.navbar-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(10px, 2vw, 25px);
+}
+
+.navbar-usuario {
+  font-family: "Bree Serif", serif;
+  font-size: clamp(14px, 1.8vw, 20px);
+  color: #f2d16b;
+}
+
+.navbar-salir {
+  font-family: "Bree Serif", serif;
+  font-size: clamp(14px, 1.8vw, 20px);
+  color: white;
+  background: transparent;
+  border: 1px solid white;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
 @media (max-width: 480px) {
   .navbar {
     flex-direction: column;
     justify-content: center;
     gap: 6px;
+  }
+  .navbar-links {
+    justify-content: center;
   }
 }
