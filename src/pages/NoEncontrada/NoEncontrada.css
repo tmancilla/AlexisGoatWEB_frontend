@@ -1,0 +1,40 @@
+.no-encontrada {
+  min-height: calc(100vh - var(--navbar-height));
+  background-color: #10283d;
+  color: white;
+  font-family: "Bree Serif", serif;
+  padding: clamp(18px, 3.5vmin, 45px) clamp(15px, 4vw, 50px);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 2vmin, 20px);
+  text-align: center;
+}
+
+.no-encontrada-codigo {
+  font-size: clamp(60px, 16vmin, 160px);
+  line-height: 1;
+  color: #f2c94c;
+  margin: 0;
+}
+
+.no-encontrada h1 {
+  font-size: clamp(22px, 4.5vmin, 48px);
+  margin: 0;
+}
+
+.no-encontrada p {
+  font-size: clamp(14px, 2vmin, 22px);
+  margin: 0;
+}
+
+.no-encontrada a {
+  font-size: clamp(14px, 2vmin, 22px);
+  color: white;
+  background-color: #184063;
+  padding: clamp(10px, 1.6vmin, 16px) clamp(18px, 3vmin, 30px);
+  border-radius: 10px;
+  text-decoration: none;
+}

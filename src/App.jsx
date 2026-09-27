@@ -11,6 +11,7 @@ import Tutorial from "./pages/Tutorial/Tutorial";
 import Nosotros from "./pages/Nosotros/Nosotros";
 import Preparacion from "./pages/Preparacion/Preparacion";
 import Partida from "./pages/Partida/Partida";
+import NoEncontrada from "./pages/NoEncontrada/NoEncontrada";
 
 function App() {
 
@@ -33,6 +34,7 @@ function App() {
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/preparacion" element={<Preparacion />} />
         <Route path="/tablero" element={<Partida />} />
+        <Route path="*" element={<NoEncontrada />} />
       </Routes>
 
       <Footer />

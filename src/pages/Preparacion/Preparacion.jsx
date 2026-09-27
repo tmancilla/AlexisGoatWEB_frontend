@@ -10,7 +10,6 @@ const LETRAS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
 
 const ZONA = { desde: 1, hasta: 4 };
 
-
 const SEGUNDOS_DESPLIEGUE = 120;
 
 function clave(casilla) {
@@ -34,7 +33,6 @@ function libresEnZona(colocados) {
   return libres;
 }
 
-
 function completarAlAzar(colocados) {
   const resultado = { ...colocados };
 
@@ -48,13 +46,11 @@ function completarAlAzar(colocados) {
   return resultado;
 }
 
-
 function armarDespliegue(colocados) {
   return tiposBarco.map((barco) => ({
     tipo: barco.tipo,
     casilla: colocados[barco.tipo]}));
 }
-
 
 function armarFlota(colocados) {
   return tiposBarco.map((barco, indice) => ({
@@ -103,7 +99,6 @@ function Preparacion() {
       return;
     }
 
-
     const ocupante = tiposBarco.find(
       (barco) =>
         colocados[barco.tipo] &&
@@ -118,7 +113,6 @@ function Preparacion() {
 
     setColocados({ ...colocados, [seleccionado]: { x, y } });
     setError("");
-
 
     const siguiente = tiposBarco.find(
       (barco) => barco.tipo !== seleccionado && !colocados[barco.tipo]);

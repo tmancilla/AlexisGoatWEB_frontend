@@ -37,11 +37,9 @@ function clave(casilla) {
   return `${casilla.x},${casilla.y}`;
 }
 
-
 function distancia(origen, destino) {
   return Math.abs(origen.x - destino.x) + Math.abs(origen.y - destino.y);
 }
-
 
 function armarEstadoInicial(flotaDesplegada) {
   const base = copiar(partida.enCurso.contenido);
@@ -58,7 +56,6 @@ function armarEstadoInicial(flotaDesplegada) {
       accionesRestantes: ACCIONES_POR_TURNO,
       accionesPorBarco: {}}};
 }
-
 
 function destinosPosibles(barco, estado) {
   const stats = statsDe(barco.tipo);
@@ -115,7 +112,6 @@ function Partida() {
     setBitacora((anterior) => [...anterior, texto]);
   }
 
-
   function terminarTurno(textoBitacora = "") {
     if (textoBitacora !== "") agregarBitacora(textoBitacora);
 
@@ -127,7 +123,6 @@ function Partida() {
 
       const meToca = siguiente === anterior.yo.jugadorId;
       const ronda = meToca ? anterior.ronda + 1 : anterior.ronda;
-
 
       if (ronda > anterior.rondaMaxima) return copiar(partida.terminada.contenido);
 
@@ -197,7 +192,6 @@ function Partida() {
       setMensaje("No es tu turno, espera a que el rival termine.");
       return;
     }
-
 
     const propio = estado.yo.flota.find(
       (barco) => barco.aFlote && barco.casilla.x === x && barco.casilla.y === y);

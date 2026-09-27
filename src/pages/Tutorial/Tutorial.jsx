@@ -30,7 +30,8 @@ function Tutorial() {
 
         <p>
           Los jugadores juegan de forma alternada por turnos donde cada
-          jugador puede hacer hasta 3 acciones durante su turno.
+          jugador puede hacer hasta 3 acciones durante su turno, con un
+          máximo de 2 acciones por barco.
         </p>
 
         <ul>
@@ -49,7 +50,22 @@ function Tutorial() {
           <li>Pozo petrolero: entrega combustible.</li>
           <li>Depósito de munición: entrega munición.</li>
           <li>Naufragio: entrega chatarra.</li>
+          <li>Chatarra: restos que quedan tras un combate, se recogen para pagar mejoras.</li>
           <li>Corriente peligrosa: causa daño al barco que entra en ella.</li>
+        </ul>
+      </section>
+
+      <section className="tutorial-section">
+        <h2>Símbolos del tablero</h2>
+
+        <ul>
+          <li>L, F, D, A: Lancha, Fragata, Destructor y Acorazado.</li>
+          <li>Barco con fondo dorado: barco propio.</li>
+          <li>Barco con fondo rojo: barco enemigo a la vista.</li>
+          <li>Borde rojo punteado con ?: última posición conocida de un enemigo que ya no se ve.</li>
+          <li>Número junto al barco: casco restante.</li>
+          <li>X: barco hundido.</li>
+          <li>Casilla verde: casilla disponible para la acción elegida.</li>
         </ul>
       </section>
 

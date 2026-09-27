@@ -1,6 +1,5 @@
 import "./BoardCell.css";
 
-
 const simbolosCasilla = {
   POZO_PETROLERO: "⛽",
   DEPOSITO_MUNICION: "📦",
@@ -17,7 +16,6 @@ const nombresCasilla = {
   CORRIENTE_PELIGROSA: "corriente peligrosa",
   CHATARRA: "chatarra"
 };
-
 
 function describir(x, y, tipo, barco, niebla) {
   const posicion = `casilla ${x}, ${y}`;
@@ -54,7 +52,6 @@ function BoardCell({
   if (disponible) clases.push("celda--disponible");
   if (seleccionada) clases.push("celda--seleccionada");
 
-  
   const manejarClick = () => {
     if (onClick) onClick(x, y);
   };
@@ -74,7 +71,6 @@ function BoardCell({
       {barco && (
         <span className={clasesBarco(barco)}>{barco.letra}</span>
       )}
-
 
       {barco && barco.aFlote && barco.casco !== null && (
         <span className="celda-casco">{barco.casco}</span>
