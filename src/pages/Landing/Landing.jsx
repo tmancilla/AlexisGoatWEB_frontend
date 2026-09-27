@@ -14,6 +14,11 @@ function Landing() {
         Juego de estrategia naval para dos jugadores.
       </p>
 
+      <p className="landing-motivation">
+        Combina estrategia naval, gestión de recursos y niebla de guerra
+        para que cada partida dependa de las decisiones de los jugadores.
+      </p>
+
       <div className="landing-buttons">
         <Link to="/login">Iniciar sesión</Link>
         <Link to="/register">Registrarse</Link>

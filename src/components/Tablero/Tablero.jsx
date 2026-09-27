@@ -7,15 +7,12 @@ import "./Tablero.css";
 const TAMANO = 10;
 const LETRAS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
 
-// 1..10, lo usamos para las dos vueltas del map que arman la grilla
 const coordenadas = Array.from({ length: TAMANO }, (_, i) => i + 1);
 
 function clave(x, y) {
   return `${x},${y}`;
 }
 
-// deja los barcos propios y los contactos enemigos en un solo mapa por casilla
-// asi cada celda pregunta una vez y no recorremos los arrays 100 veces
 function indexarBarcos(flota, contactos) {
   const mapa = new Map();
 
@@ -69,7 +66,6 @@ function Tablero({
           {coordenadas.map((x) => {
             const casilla = mapaCasillas.get(clave(x, y));
             const barco = mapaBarcos.get(clave(x, y));
-            // si no llego la casilla en el estado es porque esta fuera del radio de deteccion
             const niebla = !casilla && !barco;
             const enZona = zona ? y >= zona.desde && y <= zona.hasta : false;
 

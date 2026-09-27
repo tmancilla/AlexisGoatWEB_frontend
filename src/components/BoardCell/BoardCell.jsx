@@ -1,6 +1,6 @@
 import "./BoardCell.css";
 
-// simbolo que se pinta segun lo que haya en la casilla
+
 const simbolosCasilla = {
   POZO_PETROLERO: "⛽",
   DEPOSITO_MUNICION: "📦",
@@ -18,7 +18,7 @@ const nombresCasilla = {
   CHATARRA: "chatarra"
 };
 
-// el texto del aria-label lo armamos aparte porque cambia harto segun el caso
+
 function describir(x, y, tipo, barco, niebla) {
   const posicion = `casilla ${x}, ${y}`;
   if (barco) {
@@ -30,8 +30,6 @@ function describir(x, y, tipo, barco, niebla) {
   return `${posicion}, ${nombresCasilla[tipo] || "agua abierta"}`;
 }
 
-// el barco enemigo que perdimos de vista se pinta apagado, asi se nota que es la ultima
-// posicion conocida y no donde esta ahora
 function clasesBarco(barco) {
   const clases = ["celda-barco"];
   clases.push(barco.propio ? "celda-barco--propio" : "celda-barco--enemigo");
@@ -56,7 +54,7 @@ function BoardCell({
   if (disponible) clases.push("celda--disponible");
   if (seleccionada) clases.push("celda--seleccionada");
 
-  // sin onClick la celda igual se renderiza pero queda muerta, sirve para tableros de solo lectura
+  
   const manejarClick = () => {
     if (onClick) onClick(x, y);
   };
@@ -77,7 +75,7 @@ function BoardCell({
         <span className={clasesBarco(barco)}>{barco.letra}</span>
       )}
 
-      {/* el casco viene null cuando el enemigo esta fuera del radio de deteccion */}
+
       {barco && barco.aFlote && barco.casco !== null && (
         <span className="celda-casco">{barco.casco}</span>
       )}

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import Tablero from "../../components/Tablero/Tablero";
 import PanelRecursos from "../../components/PanelRecursos/PanelRecursos";
+import Bitacora from "../../components/Bitacora/Bitacora";
 import partida from "../../mocks/partida";
 import { eventoAlAzar } from "../../mocks/eventos";
 import { statsDe } from "../../mocks/flota";
@@ -12,7 +13,6 @@ const TAMANO = 10;
 const ACCIONES_POR_TURNO = 3;
 const ACCIONES_POR_BARCO = 2;
 
-// el enunciado da 3 minutos por turno, al llegar a cero el turno se cierra solo
 const SEGUNDOS_TURNO = 180;
 
 const TEXTO_MOTIVO = {
@@ -37,12 +37,12 @@ function clave(casilla) {
   return `${casilla.x},${casilla.y}`;
 }
 
-// distancia manhattan, es la que usa el juego para movimiento y alcance
+
 function distancia(origen, destino) {
   return Math.abs(origen.x - destino.x) + Math.abs(origen.y - destino.y);
 }
 
-// si venimos de la pantalla de preparacion arrancamos con esa flota, si no con la del mock
+
 function armarEstadoInicial(flotaDesplegada) {
   const base = copiar(partida.enCurso.contenido);
   if (!flotaDesplegada) return base;
@@ -59,8 +59,7 @@ function armarEstadoInicial(flotaDesplegada) {
       accionesPorBarco: {}}};
 }
 
-// casillas a las que puede llegar el barco: dentro de su movimiento, sin otro barco encima
-// y que alcancen a pagarse con el combustible que queda
+
 function destinosPosibles(barco, estado) {
   const stats = statsDe(barco.tipo);
   const ocupadas = new Set(
@@ -91,6 +90,7 @@ function Partida() {
   const [seleccionado, setSeleccionado] = useState(null);
   const [segundos, setSegundos] = useState(SEGUNDOS_TURNO);
   const [mensaje, setMensaje] = useState("");
+  const [bitacora, setBitacora] = useState(["Comenzó la partida."]);
 
   const enCurso = estado.estado === "EN_CURSO";
   const esMiTurno = estado.jugadorActivo === estado.yo.jugadorId;
@@ -111,9 +111,14 @@ function Partida() {
 
   const destinos = puedeMover ? destinosPosibles(barcoSeleccionado, estado) : [];
 
-  // aca esta el cambio de turno: pasa el turno al otro jugador y, cuando vuelve al que parte,
-  // sube la ronda, revela una carta nueva y devuelve las 3 acciones
-  function terminarTurno() {
+  function agregarBitacora(texto) {
+    setBitacora((anterior) => [...anterior, texto]);
+  }
+
+
+  function terminarTurno(textoBitacora = "") {
+    if (textoBitacora !== "") agregarBitacora(textoBitacora);
+
     setEstado((anterior) => {
       const siguiente =
         anterior.jugadorActivo === anterior.yo.jugadorId
@@ -123,7 +128,7 @@ function Partida() {
       const meToca = siguiente === anterior.yo.jugadorId;
       const ronda = meToca ? anterior.ronda + 1 : anterior.ronda;
 
-      // pasado el limite de rondas la partida termina y se muestra el puntaje final
+
       if (ronda > anterior.rondaMaxima) return copiar(partida.terminada.contenido);
 
       return {
@@ -153,8 +158,8 @@ function Partida() {
   useEffect(() => {
     if (segundos > 0 || !enCurso) return;
     setMensaje("Se acabó el tiempo, el turno se cerró automáticamente.");
-    terminarTurno();
-    // el turno se cierra solo al llegar a cero, igual que haria el servidor con el timeout
+    terminarTurno("Se acabó el tiempo del turno.");
+
   }, [segundos, enCurso]);
 
   function mover(destino) {
@@ -180,7 +185,9 @@ function Partida() {
             : barco)}}));
 
     const palabra = pasos === 1 ? "casilla" : "casillas";
-    setMensaje(`${stats.nombre} se movió ${pasos} ${palabra} y gastó ${costo} de combustible.`);
+    const texto = `${stats.nombre} se movió ${pasos} ${palabra} y gastó ${costo} de combustible.`;
+    setMensaje(texto);
+    agregarBitacora(texto);
   }
 
   function handleCasilla(x, y) {
@@ -191,7 +198,7 @@ function Partida() {
       return;
     }
 
-    // si el click cae sobre un barco propio lo que hace es seleccionarlo, no moverlo
+
     const propio = estado.yo.flota.find(
       (barco) => barco.aFlote && barco.casilla.x === x && barco.casilla.y === y);
 
@@ -231,6 +238,8 @@ function Partida() {
   }
 
   function handleAbandonar() {
+    agregarBitacora("Abandonaste la partida.");
+
     setEstado((anterior) => ({
       ...anterior,
       estado: "TERMINADA",
@@ -272,7 +281,11 @@ function Partida() {
             <button
               type="button"
               className="partida-turno"
-              onClick={terminarTurno}
+              onClick={() =>
+                terminarTurno(
+                  esMiTurno ? "Terminaste tu turno." : "Terminó el turno del rival."
+                )
+              }
               disabled={!enCurso}
             >
               {esMiTurno ? "Terminar turno" : "Simular turno del rival"}
@@ -284,16 +297,20 @@ function Partida() {
           </div>
         </section>
 
-        <PanelRecursos
-          recursos={estado.yo.recursos}
-          accionesRestantes={estado.yo.accionesRestantes}
-          ronda={estado.ronda}
-          rondaMaxima={estado.rondaMaxima}
-          evento={estado.eventoRonda}
-          esMiTurno={esMiTurno}
-          segundosRestantes={enCurso ? segundos : null}
-          rival={estado.rival}
-        />
+        <div className="partida-panel">
+          <PanelRecursos
+            recursos={estado.yo.recursos}
+            accionesRestantes={estado.yo.accionesRestantes}
+            ronda={estado.ronda}
+            rondaMaxima={estado.rondaMaxima}
+            evento={estado.eventoRonda}
+            esMiTurno={esMiTurno}
+            segundosRestantes={enCurso ? segundos : null}
+            rival={estado.rival}
+          />
+
+          <Bitacora acciones={bitacora} />
+        </div>
       </div>
 
       {resultado && (

@@ -1,4 +1,4 @@
-/* una columna extra al principio para los numeros de fila, las otras 10 son el tablero */
+
 .tablero {
   width: 100%;
   max-width: 620px;

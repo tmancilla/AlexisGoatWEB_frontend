@@ -1,5 +1,4 @@
-// las cuatro cartas de evento, el servidor revela una al inicio de cada ronda
-// aca la elegimos en el cliente solo para que el mock se vea vivo al cambiar de ronda
+
 const eventos = [
   {
     carta: "TORMENTA",
