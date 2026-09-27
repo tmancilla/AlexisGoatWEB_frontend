@@ -1,5 +1,4 @@
-// stats base de cada tipo de barco, son los de la tabla de la entrega 1
-// cuando exista el backend esto viene dentro del estado de la partida, aca lo dejamos fijo
+
 const tiposBarco = [
   {
     tipo: "LANCHA",
@@ -51,7 +50,6 @@ const tiposBarco = [
   }
 ];
 
-// busca los stats de un tipo, lo usamos harto porque el estado solo manda el string del tipo
 export function statsDe(tipo) {
   return tiposBarco.find((barco) => barco.tipo === tipo);
 }

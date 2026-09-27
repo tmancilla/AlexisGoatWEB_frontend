@@ -8,10 +8,9 @@ import "./Preparacion.css";
 const TAMANO = 10;
 const LETRAS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
 
-// zona de despliegue del jugador 1, el jugador 2 usaria las filas 7 a 10
 const ZONA = { desde: 1, hasta: 4 };
 
-// el enunciado da 2 minutos para desplegar, si se acaban el servidor coloca la flota al azar
+
 const SEGUNDOS_DESPLIEGUE = 120;
 
 function clave(casilla) {
@@ -22,7 +21,6 @@ function nombreCasilla(casilla) {
   return `${LETRAS[casilla.x - 1]}${casilla.y}`;
 }
 
-// casillas de la zona propia que todavia no tienen barco encima
 function libresEnZona(colocados) {
   const ocupadas = new Set(
     Object.values(colocados).filter(Boolean).map(clave));
@@ -36,8 +34,7 @@ function libresEnZona(colocados) {
   return libres;
 }
 
-// rellena los barcos que falten en casillas libres al azar, es lo mismo que hace el servidor
-// cuando se vence el tiempo de despliegue
+
 function completarAlAzar(colocados) {
   const resultado = { ...colocados };
 
@@ -51,14 +48,14 @@ function completarAlAzar(colocados) {
   return resultado;
 }
 
-// pasa el objeto de posiciones al array de barcos que espera el endpoint POST /games/:id/desplegar
+
 function armarDespliegue(colocados) {
   return tiposBarco.map((barco) => ({
     tipo: barco.tipo,
     casilla: colocados[barco.tipo]}));
 }
 
-// lo mismo pero con la forma de "yo.flota" del estado de partida, para poder pintar el tablero
+
 function armarFlota(colocados) {
   return tiposBarco.map((barco, indice) => ({
     barcoId: `b-${indice + 1}`,
@@ -106,7 +103,7 @@ function Preparacion() {
       return;
     }
 
-    // si la casilla ya tiene un barco, el click lo selecciona en vez de apilar otro encima
+
     const ocupante = tiposBarco.find(
       (barco) =>
         colocados[barco.tipo] &&
@@ -122,7 +119,7 @@ function Preparacion() {
     setColocados({ ...colocados, [seleccionado]: { x, y } });
     setError("");
 
-    // pasamos solo al siguiente barco que siga sin colocar, asi se despliega de corrido
+
     const siguiente = tiposBarco.find(
       (barco) => barco.tipo !== seleccionado && !colocados[barco.tipo]);
 

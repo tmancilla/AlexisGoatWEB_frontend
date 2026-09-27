@@ -2,7 +2,7 @@ import "./PanelRecursos.css";
 
 const ACCIONES_POR_TURNO = 3;
 
-// pasa los segundos que quedan de turno a mm:ss
+
 function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60);
   const resto = segundos % 60;
@@ -19,7 +19,7 @@ function PanelRecursos({
   segundosRestantes = null,
   rival = null
 }) {
-  // los recursos van en un array para renderizarlos con map en vez de repetir el bloque tres veces
+  
   const items = [
     { id: "combustible", nombre: "Combustible", simbolo: "⛽", valor: recursos.combustible },
     { id: "municion", nombre: "Munición", simbolo: "📦", valor: recursos.municion },

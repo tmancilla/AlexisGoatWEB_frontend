@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 
 import Navbar from "./components/Navbar/Navbar";
+import Footer from "./components/Footer/Footer";
 import Landing from "./pages/Landing/Landing";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
@@ -33,6 +34,8 @@ function App() {
         <Route path="/preparacion" element={<Preparacion />} />
         <Route path="/tablero" element={<Partida />} />
       </Routes>
+
+      <Footer />
     </BrowserRouter>
   );
 }
