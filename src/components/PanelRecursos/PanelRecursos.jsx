@@ -2,7 +2,6 @@ import "./PanelRecursos.css";
 
 const ACCIONES_POR_TURNO = 3;
 
-
 function formatearTiempo(segundos) {
   const minutos = Math.floor(segundos / 60);
   const resto = segundos % 60;
@@ -19,7 +18,7 @@ function PanelRecursos({
   segundosRestantes = null,
   rival = null
 }) {
-  
+
   const items = [
     { id: "combustible", nombre: "Combustible", simbolo: "⛽", valor: recursos.combustible },
     { id: "municion", nombre: "Munición", simbolo: "📦", valor: recursos.municion },
