@@ -1,0 +1,24 @@
+.bitacora {
+  padding: clamp(12px, 2vmin, 20px);
+  background-color: #10283d;
+  border-radius: 15px;
+
+  font-family: "Bree Serif", serif;
+  color: white;
+}
+
+.bitacora h2 {
+  font-size: clamp(15px, 2.2vmin, 24px);
+  color: #f2c94c;
+  margin: 0 0 10px;
+}
+
+.bitacora ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.bitacora li {
+  margin-bottom: 6px;
+  font-size: clamp(12px, 1.6vmin, 18px);
+}

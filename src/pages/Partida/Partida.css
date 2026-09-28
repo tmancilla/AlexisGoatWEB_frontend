@@ -1,0 +1,192 @@
+.partida {
+  min-height: calc(100vh - var(--navbar-height));
+  background-image: linear-gradient(rgba(7, 20, 33, 0.55), rgba(7, 20, 33, 0.8)),
+    url("../../assets/landing-background.png");
+  background-size: cover;
+  background-position: center;
+
+  padding: clamp(12px, 2.5vmin, 30px) clamp(15px, 3vw, 40px);
+
+  font-family: "Bree Serif", serif;
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(12px, 2vmin, 24px);
+}
+
+.partida-header {
+  text-align: center;
+  text-shadow: 0 2px 6px rgba(7, 20, 33, 0.9);
+}
+
+.partida h1 {
+  font-size: clamp(20px, 4.5vmin, 46px);
+  margin: 0;
+}
+
+.partida-ayuda {
+  font-size: clamp(12px, 1.7vmin, 19px);
+  margin: 8px 0 0;
+}
+
+
+.partida-contenido {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: clamp(12px, 2.5vmin, 30px);
+}
+
+.partida-tablero {
+  width: 100%;
+  max-width: 620px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(8px, 1.4vmin, 14px);
+}
+
+.partida-panel {
+  width: 100%;
+  max-width: 340px;
+
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.6vmin, 18px);
+}
+
+.partida-mensaje {
+  width: 100%;
+  margin: 0;
+  padding: 8px 12px;
+
+  background-color: #10283d;
+  border-left: 4px solid #f2c94c;
+  border-radius: 10px;
+
+  font-size: clamp(12px, 1.6vmin, 18px);
+}
+
+.partida-botones {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.partida-botones button {
+  flex: 1;
+  min-width: 140px;
+  padding: clamp(10px, 1.6vmin, 16px);
+
+  font-family: "Bree Serif", serif;
+  font-size: clamp(13px, 1.8vmin, 20px);
+  color: white;
+  background-color: #5b377f;
+
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.partida-botones .partida-turno {
+  background-color: #516953;
+}
+
+.partida-botones button:disabled {
+  background-color: #3a4a57;
+  color: #8fa3b3;
+  cursor: default;
+}
+
+.partida-resultado {
+  width: 100%;
+  max-width: 620px;
+  padding: clamp(14px, 2.4vmin, 26px);
+
+  background-color: #10283d;
+  border-radius: 15px;
+  text-align: center;
+}
+
+.partida-resultado h2 {
+  font-size: clamp(18px, 3vmin, 32px);
+  color: #f2c94c;
+  margin: 0 0 10px;
+}
+
+.partida-motivo {
+  font-size: clamp(13px, 1.8vmin, 20px);
+  margin: 0 0 clamp(10px, 1.6vmin, 16px);
+}
+
+.partida-puntajes {
+  list-style: none;
+  margin: 0 0 clamp(12px, 2vmin, 20px);
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.partida-puntajes > li {
+  padding: 8px 12px;
+  background-color: #1d3247;
+  border-radius: 10px;
+  font-size: clamp(12px, 1.6vmin, 18px);
+}
+
+.partida-puntaje-fila {
+  display: flex;
+  justify-content: space-between;
+}
+
+.partida-detalle {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  text-align: left;
+  font-size: clamp(11px, 1.4vmin, 15px);
+  opacity: 0.85;
+}
+
+.partida-detalle li {
+  display: flex;
+  justify-content: space-between;
+}
+
+.partida-puntaje-total {
+  color: #f2c94c;
+}
+
+.partida-resultado button {
+  width: 100%;
+  max-width: 280px;
+  padding: clamp(10px, 1.6vmin, 16px);
+
+  font-family: "Bree Serif", serif;
+  font-size: clamp(13px, 1.8vmin, 20px);
+  color: white;
+  background-color: #184063;
+
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .partida-contenido {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .partida-panel {
+    max-width: 620px;
+  }
+}

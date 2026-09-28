@@ -1,0 +1,60 @@
+.nosotros {
+  min-height: calc(100vh - var(--navbar-height));
+  background-color: #10283d;
+  color: white;
+  padding: clamp(18px, 3.5vmin, 45px) clamp(15px, 4vw, 50px);
+  font-family: "Bree Serif", serif;
+}
+
+.nosotros h1 {
+  font-size: clamp(24px, 5.5vmin, 58px);
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: clamp(18px, 3vmin, 34px);
+}
+
+.nosotros-proyecto {
+  max-width: 800px;
+  margin: auto;
+  text-align: center;
+}
+
+.nosotros-proyecto h2 {
+  font-size: clamp(19px, 3.2vmin, 36px);
+}
+
+.nosotros-proyecto p {
+  font-size: clamp(14px, 2vmin, 22px);
+  line-height: 1.5;
+}
+
+.nosotros-equipo {
+  margin-top: clamp(25px, 4.5vmin, 55px);
+  text-align: center;
+}
+
+.nosotros-equipo h2 {
+  font-size: clamp(19px, 3.2vmin, 36px);
+}
+
+.equipo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 280px));
+  justify-content: center;
+  gap: clamp(15px, 2.5vmin, 36px);
+}
+
+.integrante {
+  background-color: #184063;
+  border-radius: 15px;
+  padding: clamp(14px, 2.2vmin, 24px);
+}
+
+.integrante h3 {
+  font-size: clamp(17px, 2.5vmin, 28px);
+  margin-top: 0;
+}
+
+.integrante p {
+  font-size: clamp(14px, 1.9vmin, 21px);
+}

@@ -1,0 +1,83 @@
+.landing {
+  min-height: calc(100vh - var(--navbar-height));
+  background-image: url("../../assets/landing-background.png");
+  background-size: cover;
+  background-position: center;
+
+  padding: clamp(10px, 2vmin, 30px) clamp(15px, 3vw, 40px);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.landing img {
+  width: clamp(180px, 70vmin, 780px);
+  margin-top: clamp(-87px, -7.8vmin, -20px);
+  margin-bottom: clamp(-156px, -14vmin, -36px);
+}
+
+.landing h1 {
+  font-family: "Bree Serif", serif;
+  font-size: clamp(26px, 11.5vmin, 100px);
+  color: white;
+  margin: 0;
+  text-align: center;
+}
+
+.landing-subtitle {
+  font-family: "Bree Serif", serif;
+  font-size: clamp(15px, 5.5vmin, 48px);
+  color: #f2c94c;
+  margin: clamp(8px, 2vmin, 20px) 0;
+  text-align: center;
+}
+
+.landing-motivation {
+  max-width: 900px;
+  margin: 0;
+
+  font-family: "Bree Serif", serif;
+  font-size: clamp(13px, 2.5vmin, 24px);
+  color: white;
+  text-align: center;
+}
+
+.landing-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(12px, 4vmin, 50px);
+  margin-top: clamp(10px, 2vmin, 25px);
+}
+
+.landing-buttons a {
+  width: clamp(130px, 34vmin, 380px);
+  height: clamp(62px, 17vmin, 155px);
+  padding: 10px;
+
+  font-family: "Bree Serif", serif;
+  font-size: clamp(15px, 4vmin, 48px);
+  color: white;
+  border-radius: 15px;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.landing-buttons a:nth-child(1) {
+  background-color: #184063;
+}
+
+.landing-buttons a:nth-child(2) {
+  background-color: #516953;
+}
+
+.landing-buttons a:nth-child(3) {
+  background-color: #5b377f;
+}

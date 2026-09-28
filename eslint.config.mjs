@@ -1,21 +1,27 @@
 import { builtinModules } from 'module';
+import globals from 'globals';
 
 export default [
   {
-    ignores: ["node_modules/**"],
+    ignores: ["node_modules/**", "dist/**", "dist-ssr/**"],
   },
   {
-    files: ["**/*.js"],
+    files: ["**/*.js", "**/*.jsx"],
     languageOptions: {
       ecmaVersion: 2021,
       sourceType: "module",
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true
+        }
+      },
       globals: {
         ...builtinModules.reduce((acc, mod) => {
           acc[mod] = "readonly";
           return acc;
         }, {}),
-        browser: true,
-        node: true
+        ...globals.browser,
+        ...globals.node
       }
     },
     rules: {
