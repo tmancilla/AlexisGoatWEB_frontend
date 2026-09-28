@@ -15,7 +15,7 @@ Estrategia naval por turnos para 2 jugadores. Mapa compartido de 10×10 casillas
 
 ### Requisitos previos
 
-- **Node.js** v22 o superior (se desarrolló con v24.14.0). Recomendado instalarlo vía [nvm](https://github.com/nvm-sh/nvm) para poder fijar la versión exacta.
+- **Node.js** v22 o superior (se desarrolló con v24.14.0).
 - **Git**.
 - Si usas Windows: **WSL2** + **Windows Terminal** (Microsoft Store). El proyecto debe clonarse dentro del sistema de archivos de Linux (`/home/usuario/...`), no en `/mnt/c/...` , si no, no se detecta los cambios de archivo correctamente.
 
@@ -45,11 +45,11 @@ npm run lint      # corre ESLint sobre el proyecto
 
 ## Despliegue
 
-URL de producción: PENDIENTE
+URL de producción: https://guerradelpacificofront.netlify.app/
 
 ## Tablero Kanban
 
-https://github.com/users/vvialbarros/projects/1/views/1?filterQuery=assignee%3Atmancilla
+https://github.com/users/vvialbarros/projects/1/views/1
 
 ## Supuestos y decisiones técnicas
 
