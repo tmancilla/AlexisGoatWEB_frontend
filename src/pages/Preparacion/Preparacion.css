@@ -176,3 +176,10 @@
     max-width: 620px;
   }
 }
+
+@media (max-width: 600px) {
+  .preparacion {
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+}

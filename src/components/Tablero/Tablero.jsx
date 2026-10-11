@@ -13,24 +13,33 @@ function clave(x, y) {
   return `${x},${y}`;
 }
 
+function guardarBarco(mapa, barco) {
+  const casilla = clave(barco.casilla.x, barco.casilla.y);
+  const actual = mapa.get(casilla);
+  if (actual && actual.aFlote && !barco.aFlote) return;
+  mapa.set(casilla, barco);
+}
+
 function indexarBarcos(flota, contactos) {
   const mapa = new Map();
 
   flota.forEach((barco) => {
     const stats = statsDe(barco.tipo);
-    mapa.set(clave(barco.casilla.x, barco.casilla.y), {
+    guardarBarco(mapa, {
       ...barco,
       letra: stats ? stats.letra : "?",
       propio: true,
-      visible: true});
+      visible: true
+    });
   });
 
   contactos.forEach((contacto) => {
     const stats = statsDe(contacto.tipo);
-    mapa.set(clave(contacto.casilla.x, contacto.casilla.y), {
+    guardarBarco(mapa, {
       ...contacto,
       letra: stats ? stats.letra : "?",
-      propio: false});
+      propio: false
+    });
   });
 
   return mapa;

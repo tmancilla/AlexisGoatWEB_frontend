@@ -141,6 +141,10 @@ function Preparacion() {
       state: { despliegue: { barcos: armarDespliegue(colocados) }, flota: armarFlota(colocados) }});
   }
 
+  function handleAbandonar() {
+    navigate("/menu");
+  }
+
   return (
     <main className="preparacion">
       <header className="preparacion-header">
@@ -202,6 +206,7 @@ function Preparacion() {
           {error && <p className="preparacion-error">{error}</p>}
 
           <div className="preparacion-botones">
+            <button type="button" onClick={handleAbandonar}>Abandonar</button>
             <button type="button" onClick={handleAlAzar}>Colocar al azar</button>
             <button type="button" onClick={handleLimpiar}>Limpiar</button>
             <button
