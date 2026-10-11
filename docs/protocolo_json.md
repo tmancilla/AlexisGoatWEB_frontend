@@ -12,7 +12,7 @@
 
 REST (HTTP): Se usa para registro, login, crear/unirse/buscar partida, consultar estado, y todas las acciones dentro de una partida activa (desplegar flota, jugar un turno, terminar turno, abandonar).
 
-WebSocket: Se usa exclusivamente para dos mensajes: `CONECTAR` (cliente -> servidor, autentica el socket y lo asocia a la partida) y `ESTADO_PARTIDA` (servidor -> cliente, se reenvía a ambos jugadores cada vez que una acción REST cambia el estado).
+WebSocket: Se usa exclusivamente para dos mensajes: `CONECTAR` (cliente -> servidor, autentica el socket y lo asocia a la partida) y `ESTADO_PARTIDA` (servidor -> cliente, se reenvía a ambos jugadores cada vez que cambia el estado de la partida, ver punto 5.2) y `ERROR` (servidor -> cliente, cuando falla la conexión o se cierra el lobby, ver punto 5.3).
 
 Todas las peticiones REST autenticadas incluyen la cabecera:
 ```http
@@ -176,7 +176,7 @@ Representa una partida activa desde el punto de vista de un jugador: todo lo que
 
 `role` puede ser `Jugador` o `Administrador`. Si `role` es `Administrador`, el request debe incluir además `codigoAdmin`, validado por el servidor antes de crear la cuenta.
 
-**Response `201 Created`**
+**Response `201 Created`**: la cuenta se creó y la sesión queda iniciada de inmediato, sin tener que hacer login después.
 
 ```json
 {
@@ -192,12 +192,22 @@ Representa una partida activa desde el punto de vista de un jugador: todo lo que
 
 **Errores**
 
-| Codigo | `error` 
-|---|---
-| `400` | `EMAIL_INVALIDO` 
-| `409` | `USERNAME_YA_REGISTRADO`
-| `409` | `EMAIL_YA_REGISTRADO`
-| `403` | `CODIGO_ADMIN_INVALIDO`
+Todos los errores del protocolo usan el mismo cuerpo (punto 6). Ejemplo:
+
+```json
+{
+  "codigo": "EMAIL_YA_REGISTRADO",
+  "mensaje": "Ya existe una cuenta con el correo jugador@uc.cl."
+}
+```
+
+| Código | `codigo` | Cuándo se produce |
+|---|---|---|
+| `400` | `CAMPOS_FALTANTES` | Falta `username`, `email`, `password` o `role` |
+| `400` | `EMAIL_INVALIDO` | El correo no tiene un formato válido |
+| `403` | `CODIGO_ADMIN_INVALIDO` | `role` es `Administrador` y `codigoAdmin` falta o es incorrecto |
+| `409` | `USERNAME_YA_REGISTRADO` | Ya existe un usuario con ese `username` |
+| `409` | `EMAIL_YA_REGISTRADO` | Ya existe un usuario con ese `email` |
 
 
 ### 4.2 POST /auth/login : autenticar sesion
@@ -211,14 +221,27 @@ Representa una partida activa desde el punto de vista de un jugador: todo lo que
 }
 ```
 
-**Response `200 OK`**, mismo cuerpo que el registro.
+**Response `200 OK`**: credenciales correctas. Se emite un token nuevo.
+
+```json
+{
+  "usuario": {
+    "id": 1,
+    "username": "jugador1",
+    "email": "jugador@uc.cl",
+    "role": "Jugador"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+}
+```
 
 **Errores**
 
-| Código | `error`
-|---|---
-| `401` | `CREDENCIALES_INVALIDAS`
-| `403` | `USUARIO_BLOQUEADO` 
+| Código | `codigo` | Cuándo se produce |
+|---|---|---|
+| `400` | `CAMPOS_FALTANTES` | Falta `username` o `password` |
+| `401` | `CREDENCIALES_INVALIDAS` | El usuario no existe o la contraseña es incorrecta. No se distingue cuál de los dos, para no revelar qué usuarios existen |
+| `403` | `USUARIO_BLOQUEADO` | Un administrador bloqueó la cuenta |
 
 
 ### 4.3 POST /games : crear partida
@@ -243,10 +266,10 @@ Representa una partida activa desde el punto de vista de un jugador: todo lo que
 
 **Errores**
 
-| Código | `error` 
-|---|---
-| `401` | `TOKEN_INVALIDO`
-
+| Código | `codigo` | Cuándo se produce |
+|---|---|---|
+| `401` | `TOKEN_INVALIDO` | Falta el token, expiró o fue manipulado |
+| `409` | `YA_ESTAS_EN_PARTIDA` | El usuario ya está en otra partida activa, tiene un lobby abierto o está en la cola de matchmaking |
 
 ### 4.4 POST /games/:codigo/join : unirse por código
 
@@ -264,17 +287,24 @@ Representa una partida activa desde el punto de vista de un jugador: todo lo que
   ]
 }
 ```
-Existe el role fuera de la partida: Jugador o Administrador; y el rolPartida dentro de la partida: Dueño o Invitado
+Existe el role fuera de la partida: Jugador o Administrador; y el rolPartida dentro de la partida: Dueño o Invitado.
+
+**Ciclo del lobby**
+
+1. El dueño crea la partida (4.3): queda en `ESPERANDO_JUGADOR` y el dueño abre el WebSocket (`CONECTAR`) para enterarse cuando alguien se una.
+2. Un invitado se une (4.4): la partida pasa a `LISTO_PARA_INICIAR` y el servidor le retransmite el `ESTADO_PARTIDA` al dueño.
+3. El invitado abre su WebSocket. Cuando los dos jugadores están conectados, la partida pasa a `DESPLIEGUE`, empiezan los 2 minutos de despliegue (4.7) y el servidor retransmite el `ESTADO_PARTIDA` a ambos.
+4. Si pasan los 5 minutos de `expiraEn` sin invitado, el servidor elimina la partida y le envía al dueño un `ERROR` con `LOBBY_EXPIRADO` (punto 5.3).
 
 **Errores**
 
-| Código | `error` 
-|---|---
-| `401` | `TOKEN_INVALIDO`
-| `404` | `CODIGO_INVALIDO` 
-| `409` | `PARTIDA_LLENA`
-| `410` | `LOBBY_EXPIRADO`
-| `409` | `YA_ESTAS_EN_PARTIDA` 
+| Código | `codigo` | Cuándo se produce |
+|---|---|---|
+| `401` | `TOKEN_INVALIDO` | Falta el token, expiró o fue manipulado |
+| `404` | `CODIGO_INVALIDO` | El código no corresponde a ningún lobby |
+| `409` | `PARTIDA_LLENA` | El lobby ya tiene un invitado |
+| `409` | `YA_ESTAS_EN_PARTIDA` | El usuario ya está en otra partida activa o en la cola de matchmaking, o es el dueño de este mismo lobby |
+| `410` | `LOBBY_EXPIRADO` | Pasaron los 5 minutos de `expiraEn` sin que nadie se uniera |
 
 
 ### 4.5 POST /games/matchmaking : emparejamiento automático
@@ -306,10 +336,10 @@ En las partidas por emparejamiento no hay lobby ni roles de dueño/invitado. Amb
 
 **Errores**
 
-| Código | `error` 
-|---|---
-| `401` | `TOKEN_INVALIDO`
-| `409` | `YA_ESTAS_EN_PARTIDA` 
+| Código | `codigo` | Cuándo se produce |
+|---|---|---|
+| `401` | `TOKEN_INVALIDO` | Falta el token, expiró o fue manipulado |
+| `409` | `YA_ESTAS_EN_PARTIDA` | El usuario ya está en una partida activa o tiene un lobby abierto |
 
 
 ### 4.6 GET /games/:id  consultar estado
@@ -320,11 +350,11 @@ Devuelve el Objeto Estado de Partida (ver en punto 3) ya filtrado para el jugado
 
 **Errores**
 
-| Código | `error` 
-|---|---
-| `401` | `TOKEN_INVALIDO`
-| `403` | `NO_PERTENECES_A_LA_PARTIDA` 
-| `404` | `PARTIDA_NO_EXISTE` 
+| Código | `codigo` | Cuándo se produce |
+|---|---|---|
+| `401` | `TOKEN_INVALIDO` | Falta el token, expiró o fue manipulado |
+| `403` | `NO_PERTENECES_A_LA_PARTIDA` | El usuario del token no es jugador de esa partida |
+| `404` | `PARTIDA_NO_EXISTE` | El `partidaId` no existe, o era un lobby que expiró y se eliminó |
 
 
 ### 4.7 POST /games/:id/desplegar : desplegar flota (fase de preparación)
@@ -551,7 +581,7 @@ La partida termina de inmediato con victoria para el rival y queda registrada co
 
 ## 5. WebSocket
 
-Por WebSocket viajan solo dos mensajes: `CONECTAR` (cliente -> servidor) y `ESTADO_PARTIDA` (servidor -> cliente). Todas las acciones de juego van por REST (punto 4).
+Por WebSocket viajan tres mensajes: `CONECTAR` (cliente -> servidor), `ESTADO_PARTIDA` y `ERROR` (servidor -> cliente). Todas las acciones de juego van por REST (punto 4).
 
 ### 5.1 `CONECTAR` : cliente -> servidor
 
@@ -567,6 +597,8 @@ Abre y autentica la conexión.
 
 El servidor valida el token, indentifica al jugador con él, registra el socket como conectado a esa partida y responde con el `ESTADO_PARTIDA` actual.
 
+El cliente envía `CONECTAR` apenas obtiene un `partidaId`: el dueño después de crear la partida (4.3), el invitado después de unirse (4.4), ambos jugadores después del `200 OK` del matchmaking (4.5), y cualquier jugador al recargar la página, después de `GET /games/:id` (4.6). Si el token o la partida no son válidos, el servidor responde con `ERROR` (5.3) y cierra la conexión.
+
 ### 5.2 `ESTADO_PARTIDA` : servidor -> cliente
 
 ```json
@@ -578,11 +610,29 @@ El servidor valida el token, indentifica al jugador con él, registra el socket 
 
 `contenido` es el Objeto Estado de Partida del punto 3, filtrado para el jugador que recibe el mensaje.
 
+Mientras la partida está en `ESPERANDO_JUGADOR` o `LISTO_PARA_INICIAR`, `contenido` trae solo `partidaId`, `estado`, `yo` (`jugadorId` y `username`) y `rival` (`null` mientras no haya invitado). El resto de los campos aparece desde `DESPLIEGUE`.
+
 Se retransmite a ambos jugadores (cada uno con su propio filtrado) en dos casos: (1) cada vez que una acción REST cambia el estado de la partida, y (2) cuando el servidor detecta que el socket de un jugador se cerró (evento `close`/`disconnect`), sin ninguna acción REST: ahí el servidor arranca la cuenta atrás de `rival.segundosParaAbandono` y retransmite de inmediato al jugador que queda conectado.
+
+Si el jugador desconectado vuelve a enviar `CONECTAR` antes de que la cuenta atrás llegue a 0, el servidor la cancela y retransmite el `ESTADO_PARTIDA` con `rival.conectado: true`. Cuando la partida termina (`estado: "TERMINADA"`), el servidor envía el `ESTADO_PARTIDA` final y cierra la conexión.
+
+### 5.3 `ERROR` : servidor -> cliente
+
+```json
+{
+  "tipo": "ERROR",
+  "contenido": {
+    "codigo": "TOKEN_INVALIDO",
+    "mensaje": "La sesión expiró, vuelve a iniciar sesión."
+  }
+}
+```
+
+`contenido` usa el mismo formato de error del punto 6. Se envía cuando `CONECTAR` falla (`TOKEN_INVALIDO`, `PARTIDA_NO_EXISTE` o `NO_PERTENECES_A_LA_PARTIDA`) o cuando el lobby expira (`LOBBY_EXPIRADO`). Después de un `ERROR`, el servidor cierra la conexión.
 
 ## 6. Errores
 
-Formato único para los errores de las acciones de juego (punto 4.7–4.10), devuelto como cuerpo de la respuesta REST junto al código HTTP de la tabla. Ejemplo:
+Formato único para todos los errores del protocolo: va como cuerpo de las respuestas REST, junto al código HTTP, y dentro de `contenido` en el mensaje `ERROR` del WebSocket (5.3). La tabla de abajo lista los errores de las acciones de juego (punto 4.7–4.10); los de autenticación y lobby están en cada endpoint. Ejemplo:
 
 ```json
 {

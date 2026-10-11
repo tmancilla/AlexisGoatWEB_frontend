@@ -65,6 +65,6 @@ https://github.com/users/vvialbarros/projects/1/views/1
 
 - Vistas internas en el Menú: Crear partida, unirse por código y buscar partida son vistas dentro de `/menu` (controladas con estado) y no rutas separadas, porque son pasos de un mismo proceso y comparten los datos de la partida.
 
-- Navbar siempre visible: Durante el despliegue y la partida se ocultan los links que sacarían al jugador del juego. Para salir, dentro de la partida, se debería usar el botón "Abandonar".
+- Navbar siempre visible: Durante el despliegue y la partida se ocultan los links que sacarían al jugador del juego. Para salir, dentro de la partida, se debe usar el botón "Abandonar".
 
 - Alcance: en el tablero está implementada la acción Mover. Disparar, Vigía y Mejorar quedan definidas en el protocolo para entregas siguientes.

@@ -5,9 +5,9 @@ function Bitacora({ acciones }) {
     <section className="bitacora">
       <h2>Bitácora</h2>
 
-      <ul>
-        {acciones.map((accion, indice) => (
-          <li key={indice}>{accion}</li>
+      <ul className="bitacora-lista">
+        {[...acciones].reverse().map((accion, indice) => (
+          <li key={acciones.length - 1 - indice}>{accion}</li>
         ))}
       </ul>
     </section>

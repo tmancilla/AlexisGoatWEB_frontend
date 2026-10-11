@@ -12,12 +12,17 @@
   padding: 10px clamp(15px, 4vw, 50px);
 }
 
-.navbar a {
+.navbar a,
+.navbar-marca {
   font-family: "Bree Serif", serif;
   font-size: clamp(16px, 2.2vw, 25px);
   color: white;
   text-decoration: none;
   cursor: pointer;
+}
+
+.navbar-marca {
+  cursor: default;
 }
 
 .navbar-links {

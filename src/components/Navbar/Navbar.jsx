@@ -16,7 +16,9 @@ function Navbar({ usuario, onLogout }) {
 
   return (
     <nav className="navbar">
-      <Link to="/">Guerra del Pacífico</Link>
+      {enPartida
+        ? <span className="navbar-marca">Guerra del Pacífico</span>
+        : <Link to="/">Guerra del Pacífico</Link>}
 
       <div className="navbar-links">
         {!enPartida && (
@@ -28,11 +30,10 @@ function Navbar({ usuario, onLogout }) {
 
         {usuario ? (
           <>
-            <Link to="/menu">Menú</Link>
+            {!enPartida && <Link to="/menu">Menú</Link>}
             <span className="navbar-usuario">{usuario.username}</span>
             {!enPartida && (
-              <button type="button" className="navbar-salir" onClick=
-                {handleCerrarSesion}>
+              <button type="button" className="navbar-salir" onClick={handleCerrarSesion}>
                 Cerrar sesión
               </button>
             )}
