@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import usuarios from "../../mocks/usuarios";
-import codigoadmin from "../../mocks/codigoadmin";
 import "./Register.css";
 
-function Register() {
+const API_URL = import.meta.env.VITE_API_URL;
+
+function Register({ onLogin }) {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,7 +15,7 @@ function Register() {
 
   const navigate = useNavigate();
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     if (
@@ -34,38 +34,35 @@ function Register() {
       return;
     }
 
-    if (role === "Administrador" && codigoadminInput !== codigoadmin) {
-      setError("El código de administrador es incorrecto.");
-      return;
-    }
-
-    const usernameExistente = usuarios.find(
-      (usuario) => usuario.username === username
-    );
-
-    if (usernameExistente) {
-      setError("Ese nombre de usuario ya está registrado.");
-      return;
-    }
-
-    const emailExistente = usuarios.find(
-      (usuario) => usuario.email === email
-    );
-
-    if (emailExistente) {
-      setError("Ese correo ya está registrado.");
-      return;
-    }
-
-    usuarios.push({
-      username: username,
-      email: email,
-      password: password,
-      role: role
-    });
-
     setError("");
-    navigate("/login");
+
+    try {
+      const respuesta = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username,
+          email: email,
+          password: password,
+          role: role,
+          codigoAdmin: codigoadminInput,
+        }),
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok) {
+        setError(datos.mensaje || "No se pudo registrar la cuenta.");
+        return;
+      }
+
+      onLogin(datos.usuario);
+      navigate("/menu");
+    } catch {
+      setError("No se pudo conectar con el servidor.");
+    }
   }
 
   return (

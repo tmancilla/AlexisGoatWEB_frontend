@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState } from "react";
 
 import Navbar from "./components/Navbar/Navbar";
@@ -14,10 +14,18 @@ import Partida from "./pages/Partida/Partida";
 import NoEncontrada from "./pages/NoEncontrada/NoEncontrada";
 
 function App() {
+  const [usuario, setUsuario] = useState(() => {
+    const guardado = sessionStorage.getItem("usuario");
+    return guardado ? JSON.parse(guardado) : null;
+  });
 
-  const [usuario, setUsuario] = useState(null);
+  function handleLogin(usuarioRecibido) {
+    sessionStorage.setItem("usuario", JSON.stringify(usuarioRecibido));
+    setUsuario(usuarioRecibido);
+  }
 
   function handleLogout() {
+    sessionStorage.removeItem("usuario");
     setUsuario(null);
   }
 
@@ -27,13 +35,13 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login onLogin={setUsuario} />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/menu" element={<Menu onLogout={handleLogout} />} />
+        <Route path="/login" element={<Login onLogin={handleLogin} />} />
+        <Route path="/register" element={<Register onLogin={handleLogin} />} />
+        <Route path="/menu" element={usuario ? <Menu onLogout={handleLogout} /> : <Navigate to="/login" replace />} />
         <Route path="/tutorial" element={<Tutorial />} />
         <Route path="/nosotros" element={<Nosotros />} />
-        <Route path="/preparacion" element={<Preparacion />} />
-        <Route path="/tablero" element={<Partida />} />
+        <Route path="/preparacion" element={usuario ? <Preparacion /> : <Navigate to="/login" replace />} />
+        <Route path="/tablero" element={usuario ? <Partida /> : <Navigate to="/login" replace />} />
         <Route path="*" element={<NoEncontrada />} />
       </Routes>
 
