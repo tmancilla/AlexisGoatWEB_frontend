@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import usuarios from "../../mocks/usuarios";
 import "./Login.css";
 
-function Login({onLogin}) {
+const API_URL = import.meta.env.VITE_API_URL;
+
+function Login({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     if (username === "" || password === "") {
@@ -18,19 +19,32 @@ function Login({onLogin}) {
       return;
     }
 
-    const usuario = usuarios.find(
-      (usuario) =>
-        usuario.username === username && usuario.password === password
-    );
-
-    if (!usuario) {
-      setError("Nombre de usuario o contraseña incorrectos.");
-      return;
-    }
-
     setError("");
-    onLogin({ username: usuario.username, role: usuario.role });
-    navigate("/menu");
+
+    try {
+      const respuesta = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username,
+          password: password,
+        }),
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok) {
+        setError(datos.mensaje || "No se pudo iniciar sesión.");
+        return;
+      }
+
+      onLogin(datos.usuario);
+      navigate("/menu");
+    } catch {
+      setError("No se pudo conectar con el servidor.");
+    }
   }
 
   return (
