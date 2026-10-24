@@ -37,7 +37,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
         <Route path="/register" element={<Register onLogin={handleLogin} />} />
-        <Route path="/menu" element={usuario ? <Menu onLogout={handleLogout} /> : <Navigate to="/login" replace />} />
+        <Route path="/menu" element={usuario ? <Menu usuario={usuario} onLogout={handleLogout} /> : <Navigate to="/login" replace />} />
         <Route path="/tutorial" element={<Tutorial />} />
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/preparacion" element={usuario ? <Preparacion /> : <Navigate to="/login" replace />} />
