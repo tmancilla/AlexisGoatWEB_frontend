@@ -53,7 +53,7 @@ https://github.com/users/vvialbarros/projects/1/views/1
 
 ## Supuestos y decisiones técnicas
 
-- Datos mock: como todavía no hay backend, los datos mocks estan en src/mocks/ y siguen la estructura definida en el protocolo json, para que conectar el servidor después no cambie la forma de los datos.
+- Datos mock: el registro, el inicio de sesión, el menú (crear partida, unirse por código y buscar rival) y el despliegue ya consumen el backend. Los mocks que quedan en src/mocks/ son de la partida en curso, que se conectará en las próximas entregas.
 
 - Datos para probar: usuarios `jugador1`  y `admin` ; password= `1234`; código de administrador para registrarse: `admin`; código de invitación  para unirse a una partida: `I-1`.
 
