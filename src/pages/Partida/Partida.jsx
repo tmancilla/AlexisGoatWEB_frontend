@@ -1,19 +1,16 @@
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import Tablero from "../../components/Tablero/Tablero";
 import PanelRecursos from "../../components/PanelRecursos/PanelRecursos";
 import Bitacora from "../../components/Bitacora/Bitacora";
-import partida from "../../mocks/partida";
-import { eventoAlAzar } from "../../mocks/eventos";
 import { statsDe } from "../../mocks/flota";
+import { pedirApi } from "../../services/api";
 import "./Partida.css";
 
 const TAMANO = 10;
-const ACCIONES_POR_TURNO = 3;
 const ACCIONES_POR_BARCO = 2;
-
-const SEGUNDOS_TURNO = 180;
+const MILISEGUNDOS_CONSULTA = 2000;
 
 const TEXTO_MOTIVO = {
   FLOTA_DESTRUIDA: "destrucción de la flota",
@@ -29,10 +26,6 @@ const NOMBRES_DETALLE = {
   mejoras: "Mejoras"
 };
 
-function copiar(objeto) {
-  return JSON.parse(JSON.stringify(objeto));
-}
-
 function clave(casilla) {
   return `${casilla.x},${casilla.y}`;
 }
@@ -41,20 +34,9 @@ function distancia(origen, destino) {
   return Math.abs(origen.x - destino.x) + Math.abs(origen.y - destino.y);
 }
 
-function armarEstadoInicial(flotaDesplegada) {
-  const base = copiar(partida.enCurso.contenido);
-  if (!flotaDesplegada) return base;
-
-  return {
-    ...base,
-    ronda: 1,
-    jugadorActivo: base.yo.jugadorId,
-    yo: {
-      ...base.yo,
-      flota: flotaDesplegada,
-      recursos: { combustible: 12, municion: 8, chatarra: 0 },
-      accionesRestantes: ACCIONES_POR_TURNO,
-      accionesPorBarco: {}}};
+function nombreDe(tipo) {
+  const stats = statsDe(tipo);
+  return stats ? stats.nombre : tipo;
 }
 
 function destinosPosibles(barco, estado) {
@@ -78,115 +60,184 @@ function destinosPosibles(barco, estado) {
   return destinos;
 }
 
+function describirAccion(accion, nombres) {
+  const barco = nombres[accion.barcoId] || "Un barco";
+  const resultado = accion.resultado || {};
+  const inicio = `Ronda ${accion.ronda}: `;
+
+  if (accion.tipo === "MEJORAR") return `${inicio}${barco} compró ${resultado.mejora}.`;
+  if (accion.tipo !== "MOVER") return `${inicio}${barco} usó ${accion.tipo}.`;
+
+  const palabra = resultado.casillasRecorridas === 1 ? "casilla" : "casillas";
+  let texto = `${inicio}${barco} se movió ${resultado.casillasRecorridas} ${palabra}`;
+  texto += resultado.costos ? ` y gastó ${resultado.costos.combustible} de combustible.` : ".";
+  if (resultado.chatarraRecogida) texto += ` Recogió ${resultado.chatarraRecogida} de chatarra.`;
+  if (resultado.detenidoPor === "CORRIENTE_PELIGROSA") {
+    texto += resultado.hundido
+      ? " Una corriente peligrosa lo hundió."
+      : " Una corriente peligrosa lo frenó y le quitó 1 de casco.";
+  }
+  if (resultado.detenidoPor === "BARCO_ENEMIGO") texto += " Se frenó junto a un barco enemigo que no veías.";
+  return texto;
+}
+
 function Partida() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [parametros] = useSearchParams();
 
-  const [estado, setEstado] = useState(() =>
-    armarEstadoInicial(location.state ? location.state.flota : null));
+  const partidaId = (location.state && location.state.partidaId) || parametros.get("partidaId");
+  const usuario = JSON.parse(sessionStorage.getItem("usuario"));
+  const usuarioId = usuario ? usuario.id : null;
+
+  const [estado, setEstado] = useState(() => (location.state && location.state.estadoPartida) || null);
+  const [acciones, setAcciones] = useState([]);
   const [seleccionado, setSeleccionado] = useState(null);
-  const [segundos, setSegundos] = useState(SEGUNDOS_TURNO);
   const [mensaje, setMensaje] = useState("");
-  const [bitacora, setBitacora] = useState(["Comenzó la partida."]);
+  const [errorCarga, setErrorCarga] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [confirmandoAbandono, setConfirmandoAbandono] = useState(false);
+  const [ahora, setAhora] = useState(() => Date.now());
+
+  const cargar = useCallback(async () => {
+    if (!partidaId) {
+      setErrorCarga("No se indicó qué partida quieres ver.");
+      return;
+    }
+
+    try {
+      const [{ datos: partida }, { datos: historial }] = await Promise.all([
+        pedirApi(`/games/${partidaId}`, { usuarioId }),
+        pedirApi(`/games/${partidaId}/acciones`, { usuarioId })]);
+
+      if (partida.estado === "DESPLIEGUE") {
+        navigate("/preparacion", { replace: true, state: { partidaId } });
+        return;
+      }
+      if (!partida.yo) {
+        setErrorCarga("La partida todavía no empieza.");
+        return;
+      }
+
+      setEstado(partida);
+      setAcciones(historial);
+      setErrorCarga("");
+    } catch (error) {
+      setErrorCarga(error.message);
+    }
+  }, [partidaId, usuarioId, navigate]);
+
+  useEffect(() => {
+    cargar();
+    const consulta = setInterval(cargar, MILISEGUNDOS_CONSULTA);
+    return () => clearInterval(consulta);
+  }, [cargar]);
+
+  useEffect(() => {
+    const reloj = setInterval(() => setAhora(Date.now()), 1000);
+    return () => clearInterval(reloj);
+  }, []);
+
+  if (!estado) {
+    return (
+      <main className="partida">
+        <p className="partida-mensaje">{errorCarga || "Cargando partida..."}</p>
+        {errorCarga && (
+          <div className="partida-botones">
+            <button type="button" onClick={() => navigate("/menu")}>Volver al menú</button>
+          </div>
+        )}
+      </main>
+    );
+  }
 
   const enCurso = estado.estado === "EN_CURSO";
   const esMiTurno = estado.jugadorActivo === estado.yo.jugadorId;
+  const segundos = estado.turnoExpiraEn
+    ? Math.max(0, Math.ceil((new Date(estado.turnoExpiraEn).getTime() - ahora) / 1000))
+    : null;
 
   const barcoSeleccionado = estado.yo.flota.find(
     (barco) => barco.barcoId === seleccionado && barco.aFlote) || null;
-
-  const usadasPorBarco = barcoSeleccionado
-    ? estado.yo.accionesPorBarco[barcoSeleccionado.barcoId] || 0
-    : 0;
+  const usadasPorBarco = barcoSeleccionado ? estado.yo.accionesPorBarco[barcoSeleccionado.barcoId] || 0 : 0;
 
   const puedeMover =
     enCurso &&
     esMiTurno &&
+    !enviando &&
     barcoSeleccionado !== null &&
     estado.yo.accionesRestantes > 0 &&
     usadasPorBarco < ACCIONES_POR_BARCO;
 
   const destinos = puedeMover ? destinosPosibles(barcoSeleccionado, estado) : [];
+  const nombres = Object.fromEntries(estado.yo.flota.map((barco) => [barco.barcoId, nombreDe(barco.tipo)]));
+  const nombresJugador = { [estado.yo.jugadorId]: estado.yo.username };
+  if (estado.rival) nombresJugador[estado.rival.jugadorId] = estado.rival.username;
+  const bitacora = acciones.length > 0
+    ? acciones.map((accion) => describirAccion(accion, nombres))
+    : ["Todavía no hay acciones tuyas en esta partida."];
 
-  function agregarBitacora(texto) {
-    setBitacora((anterior) => [...anterior, texto]);
+  async function mover(destino) {
+    setEnviando(true);
+    try {
+      const { datos } = await pedirApi(`/games/${partidaId}/acciones`, {
+        metodo: "POST",
+        usuarioId,
+        cuerpo: { tipoAccion: "MOVER", barcoId: barcoSeleccionado.barcoId, casillaDestino: destino }});
+
+      setMensaje(describirAccion({
+        tipo: "MOVER",
+        ronda: estado.ronda,
+        barcoId: datos.barcoId,
+        resultado: { ...datos.resultado, costos: datos.costos }}, nombres));
+      if (datos.resultado.hundido) setSeleccionado(null);
+      await cargar();
+    } catch (error) {
+      setMensaje(error.message);
+    } finally {
+      setEnviando(false);
+    }
   }
 
-  function terminarTurno(textoBitacora = "") {
-    if (textoBitacora !== "") agregarBitacora(textoBitacora);
-
-    setEstado((anterior) => {
-      const siguiente =
-        anterior.jugadorActivo === anterior.yo.jugadorId
-          ? anterior.rival.jugadorId
-          : anterior.yo.jugadorId;
-
-      const meToca = siguiente === anterior.yo.jugadorId;
-      const ronda = meToca ? anterior.ronda + 1 : anterior.ronda;
-
-      if (ronda > anterior.rondaMaxima) return copiar(partida.terminada.contenido);
-
-      return {
-        ...anterior,
-        jugadorActivo: siguiente,
-        ronda: ronda,
-        eventoRonda: meToca ? eventoAlAzar() : anterior.eventoRonda,
-        yo: meToca
-          ? { ...anterior.yo, accionesRestantes: ACCIONES_POR_TURNO, accionesPorBarco: {} }
-          : anterior.yo};
-    });
-
-    setSeleccionado(null);
-    setSegundos(SEGUNDOS_TURNO);
+  async function terminarTurno() {
+    setEnviando(true);
+    setConfirmandoAbandono(false);
+    try {
+      await pedirApi(`/games/${partidaId}/terminar-turno`, { metodo: "POST", usuarioId });
+      setSeleccionado(null);
+      setMensaje(`Terminaste tu turno. Ahora juega ${estado.rival ? estado.rival.username : "el rival"}.`);
+      await cargar();
+    } catch (error) {
+      setMensaje(error.message);
+    } finally {
+      setEnviando(false);
+    }
   }
 
-  useEffect(() => {
-    if (!enCurso) return undefined;
+  async function abandonar() {
+    if (!confirmandoAbandono) {
+      setConfirmandoAbandono(true);
+      setMensaje("Si abandonas, la partida termina y gana el rival. Vuelve a apretar para confirmar.");
+      return;
+    }
 
-    const reloj = setInterval(() => {
-      setSegundos((anterior) => (anterior > 0 ? anterior - 1 : 0));
-    }, 1000);
-
-    return () => clearInterval(reloj);
-  }, [enCurso]);
-
-  useEffect(() => {
-    if (segundos > 0 || !enCurso) return;
-    setMensaje("Se acabó el tiempo, el turno se cerró automáticamente.");
-    terminarTurno("Se acabó el tiempo del turno.");
-
-  }, [segundos, enCurso]);
-
-  function mover(destino) {
-    const stats = statsDe(barcoSeleccionado.tipo);
-    const pasos = distancia(barcoSeleccionado.casilla, destino);
-    const costo = pasos * stats.combustiblePorCasilla;
-
-    setEstado((anterior) => ({
-      ...anterior,
-      yo: {
-        ...anterior.yo,
-        recursos: {
-          ...anterior.yo.recursos,
-          combustible: anterior.yo.recursos.combustible - costo},
-        accionesRestantes: anterior.yo.accionesRestantes - 1,
-        accionesPorBarco: {
-          ...anterior.yo.accionesPorBarco,
-          [barcoSeleccionado.barcoId]:
-            (anterior.yo.accionesPorBarco[barcoSeleccionado.barcoId] || 0) + 1},
-        flota: anterior.yo.flota.map((barco) =>
-          barco.barcoId === barcoSeleccionado.barcoId
-            ? { ...barco, casilla: destino }
-            : barco)}}));
-
-    const palabra = pasos === 1 ? "casilla" : "casillas";
-    const texto = `${stats.nombre} se movió ${pasos} ${palabra} y gastó ${costo} de combustible.`;
-    setMensaje(texto);
-    agregarBitacora(texto);
+    setEnviando(true);
+    try {
+      await pedirApi(`/games/${partidaId}/abandonar`, { metodo: "POST", usuarioId });
+      setSeleccionado(null);
+      setMensaje("Abandonaste la partida.");
+      await cargar();
+    } catch (error) {
+      setMensaje(error.message);
+    } finally {
+      setConfirmandoAbandono(false);
+      setEnviando(false);
+    }
   }
 
   function handleCasilla(x, y) {
-    if (!enCurso) return;
+    if (!enCurso || enviando) return;
+    setConfirmandoAbandono(false);
 
     if (!esMiTurno) {
       setMensaje("No es tu turno, espera a que el rival termine.");
@@ -208,7 +259,7 @@ function Partida() {
     }
 
     if (estado.yo.accionesRestantes === 0) {
-      setMensaje("Ya usaste las 3 acciones del turno.");
+      setMensaje("Ya usaste todas las acciones del turno.");
       return;
     }
 
@@ -217,34 +268,7 @@ function Partida() {
       return;
     }
 
-    const alcanzable = destinos.some((destino) => destino.x === x && destino.y === y);
-
-    if (!alcanzable) {
-      setMensaje("Esa casilla queda fuera del movimiento del barco o no te alcanza el combustible.");
-      return;
-    }
-
     mover({ x, y });
-  }
-
-  function handleVolverAlMenu() {
-    navigate("/menu");
-  }
-
-  function handleAbandonar() {
-    agregarBitacora("Abandonaste la partida.");
-
-    setEstado((anterior) => ({
-      ...anterior,
-      estado: "TERMINADA",
-      resultadoFinal: {
-        ...copiar(partida.terminada.contenido.resultadoFinal),
-        motivo: "ABANDONO",
-        ganador: anterior.rival.jugadorId
-      }
-    }));
-    setSeleccionado(null);
-    setMensaje("");
   }
 
   const resultado = estado.resultadoFinal;
@@ -269,24 +293,27 @@ function Partida() {
             onSeleccionar={handleCasilla}
           />
 
-          {mensaje && <p className="partida-mensaje">{mensaje}</p>}
+          {(mensaje || errorCarga) && <p className="partida-mensaje">{mensaje || errorCarga}</p>}
+          {estado.estado === "TERMINADA" && !resultado && (
+            <p className="partida-mensaje">La partida terminó.</p>
+          )}
 
           <div className="partida-botones">
             <button
               type="button"
               className="partida-turno"
-              onClick={() =>
-                terminarTurno(
-                  esMiTurno ? "Terminaste tu turno." : "Terminó el turno del rival."
-                )
-              }
-              disabled={!enCurso}
+              onClick={terminarTurno}
+              disabled={!enCurso || !esMiTurno || enviando}
             >
-              {esMiTurno ? "Terminar turno" : "Simular turno del rival"}
+              Terminar turno
             </button>
 
-            <button type="button" onClick={handleAbandonar} disabled={!enCurso}>
-              Abandonar
+            <button type="button" onClick={abandonar} disabled={!enCurso || enviando}>
+              {confirmandoAbandono ? "Confirmar abandono" : "Abandonar"}
+            </button>
+
+            <button type="button" onClick={() => navigate("/menu")}>
+              Volver al menú
             </button>
           </div>
         </section>
@@ -322,7 +349,7 @@ function Partida() {
               <li key={jugadorId}>
                 <div className="partida-puntaje-fila">
                   <span className="partida-puntaje-jugador">
-                    Jugador {jugadorId}
+                    {nombresJugador[jugadorId] || `Jugador ${jugadorId}`}
                     {Number(jugadorId) === estado.yo.jugadorId ? " (tú)" : ""}
                   </span>
                   <span className="partida-puntaje-total">{puntaje.total} pts</span>
@@ -340,7 +367,7 @@ function Partida() {
             ))}
           </ul>
 
-          <button type="button" onClick={handleVolverAlMenu}>
+          <button type="button" onClick={() => navigate("/menu")}>
             Volver al menú
           </button>
         </section>
