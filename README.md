@@ -59,7 +59,7 @@ https://github.com/users/vvialbarros/projects/1/views/1
 
 - Estado local: las páginas interactivas (Login, Registro, Menú, Preparación y Partida) guardan sus propios datos con `useState`. La excepción es el usuario con sesión iniciada: vive en `App.jsx` porque lo necesitan varios componentes, y se les pasa por props (el Navbar recibe el usuario, y Login y Menú reciben las funciones para iniciar y cerrar sesión).
 
-- Perspectiva única: el usuario siempre juega como jugador 1 (zona de despliegue en las filas 1 a 4), y la niebla de guerra viene fija desde el mock, sin recalcularse al mover los barcos
+- Perspectiva del jugador: el despliegue usa la zona del `numeroJugador` que asigna el servidor (filas 1 a 4 para el jugador 1, 7 a 10 para el 2). En la pantalla de partida, la niebla de guerra todavía viene fija desde el mock y no se recalcula al mover los barcos.
 
 - Durante el turno del rival en realidad no se hace nada, es solo para simular el cambio e turno.
 
