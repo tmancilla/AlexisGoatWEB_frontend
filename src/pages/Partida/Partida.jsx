@@ -96,6 +96,7 @@ function Partida() {
   const [mensaje, setMensaje] = useState("");
   const [errorCarga, setErrorCarga] = useState("");
   const [enviando, setEnviando] = useState(false);
+  const [confirmandoAbandono, setConfirmandoAbandono] = useState(false);
   const [ahora, setAhora] = useState(() => Date.now());
 
   const cargar = useCallback(async () => {
@@ -170,6 +171,8 @@ function Partida() {
 
   const destinos = puedeMover ? destinosPosibles(barcoSeleccionado, estado) : [];
   const nombres = Object.fromEntries(estado.yo.flota.map((barco) => [barco.barcoId, nombreDe(barco.tipo)]));
+  const nombresJugador = { [estado.yo.jugadorId]: estado.yo.username };
+  if (estado.rival) nombresJugador[estado.rival.jugadorId] = estado.rival.username;
   const bitacora = acciones.length > 0
     ? acciones.map((accion) => describirAccion(accion, nombres))
     : ["Todavía no hay acciones tuyas en esta partida."];
@@ -196,8 +199,45 @@ function Partida() {
     }
   }
 
+  async function terminarTurno() {
+    setEnviando(true);
+    setConfirmandoAbandono(false);
+    try {
+      await pedirApi(`/games/${partidaId}/terminar-turno`, { metodo: "POST", usuarioId });
+      setSeleccionado(null);
+      setMensaje(`Terminaste tu turno. Ahora juega ${estado.rival ? estado.rival.username : "el rival"}.`);
+      await cargar();
+    } catch (error) {
+      setMensaje(error.message);
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  async function abandonar() {
+    if (!confirmandoAbandono) {
+      setConfirmandoAbandono(true);
+      setMensaje("Si abandonas, la partida termina y gana el rival. Vuelve a apretar para confirmar.");
+      return;
+    }
+
+    setEnviando(true);
+    try {
+      await pedirApi(`/games/${partidaId}/abandonar`, { metodo: "POST", usuarioId });
+      setSeleccionado(null);
+      setMensaje("Abandonaste la partida.");
+      await cargar();
+    } catch (error) {
+      setMensaje(error.message);
+    } finally {
+      setConfirmandoAbandono(false);
+      setEnviando(false);
+    }
+  }
+
   function handleCasilla(x, y) {
     if (!enCurso || enviando) return;
+    setConfirmandoAbandono(false);
 
     if (!esMiTurno) {
       setMensaje("No es tu turno, espera a que el rival termine.");
@@ -262,10 +302,14 @@ function Partida() {
             <button
               type="button"
               className="partida-turno"
-              disabled
-              title="Se habilita cuando esté el endpoint para terminar el turno"
+              onClick={terminarTurno}
+              disabled={!enCurso || !esMiTurno || enviando}
             >
               Terminar turno
+            </button>
+
+            <button type="button" onClick={abandonar} disabled={!enCurso || enviando}>
+              {confirmandoAbandono ? "Confirmar abandono" : "Abandonar"}
             </button>
 
             <button type="button" onClick={() => navigate("/menu")}>
@@ -305,7 +349,7 @@ function Partida() {
               <li key={jugadorId}>
                 <div className="partida-puntaje-fila">
                   <span className="partida-puntaje-jugador">
-                    Jugador {jugadorId}
+                    {nombresJugador[jugadorId] || `Jugador ${jugadorId}`}
                     {Number(jugadorId) === estado.yo.jugadorId ? " (tú)" : ""}
                   </span>
                   <span className="partida-puntaje-total">{puntaje.total} pts</span>
