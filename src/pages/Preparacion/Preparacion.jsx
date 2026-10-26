@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import Tablero from "../../components/Tablero/Tablero";
 import tiposBarco from "../../mocks/flota";
 import "./Preparacion.css";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const TAMANO = 10;
 const LETRAS = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
-
-const ZONA = { desde: 1, hasta: 4 };
 
 const SEGUNDOS_DESPLIEGUE = 120;
 
@@ -20,12 +20,12 @@ function nombreCasilla(casilla) {
   return `${LETRAS[casilla.x - 1]}${casilla.y}`;
 }
 
-function libresEnZona(colocados) {
+function libresEnZona(colocados, zona) {
   const ocupadas = new Set(
     Object.values(colocados).filter(Boolean).map(clave));
 
   const libres = [];
-  for (let y = ZONA.desde; y <= ZONA.hasta; y += 1) {
+  for (let y = zona.desde; y <= zona.hasta; y += 1) {
     for (let x = 1; x <= TAMANO; x += 1) {
       if (!ocupadas.has(`${x},${y}`)) libres.push({ x, y });
     }
@@ -33,12 +33,12 @@ function libresEnZona(colocados) {
   return libres;
 }
 
-function completarAlAzar(colocados) {
+function completarAlAzar(colocados, zona) {
   const resultado = { ...colocados };
 
   tiposBarco.forEach((barco) => {
     if (resultado[barco.tipo]) return;
-    const libres = libresEnZona(resultado);
+    const libres = libresEnZona(resultado, zona);
     const elegida = libres[Math.floor(Math.random() * libres.length)];
     resultado[barco.tipo] = elegida;
   });
@@ -72,8 +72,26 @@ function Preparacion() {
   const [seleccionado, setSeleccionado] = useState(tiposBarco[0].tipo);
   const [segundos, setSegundos] = useState(SEGUNDOS_DESPLIEGUE);
   const [error, setError] = useState("");
+  const [partida, setPartida] = useState(null);
+  const [enviando, setEnviando] = useState(false);
+  const [errorConsulta, setErrorConsulta] = useState("");
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const [parametros] = useSearchParams();
+
+  const partidaId = (location.state && location.state.partidaId)
+    || parametros.get("partidaId");
+
+  const usuario = JSON.parse(sessionStorage.getItem("usuario"));
+  const usuarioId = usuario ? usuario.id : null;
+
+  const zona = partida && partida.yo.numeroJugador === 2
+    ? { desde: 7, hasta: 10 }
+    : { desde: 1, hasta: 4 };
+
+  const listo = partida ? partida.yo.listo : false;
+  const bloqueado = !partida || listo || enviando || segundos === 0;
 
   const listos = tiposBarco.filter((barco) => colocados[barco.tipo]).length;
   const flota = armarFlota(colocados).filter((barco) => barco.casilla);
@@ -87,15 +105,88 @@ function Preparacion() {
   }, []);
 
   useEffect(() => {
-    if (segundos > 0) return;
-    const completo = completarAlAzar(colocados);
-    navigate("/tablero", {
-      state: { despliegue: { barcos: armarDespliegue(completo) }, flota: armarFlota(completo) }});
-  }, [segundos, colocados, navigate]);
+    if (!partidaId) {
+      setErrorConsulta("No se indicó qué partida debes preparar.");
+      return;
+    }
+
+    let activo = true;
+
+    async function consultarPartida() {
+      try {
+        const respuesta = await fetch(`${API_URL}/games/${partidaId}`, {
+          headers: {
+            "X-Usuario-Id": usuarioId,
+          },
+        });
+
+        const datos = await respuesta.json();
+
+        if (!activo) return;
+
+        if (!respuesta.ok) {
+          setErrorConsulta(datos.mensaje || "No se pudo consultar la partida.");
+          setPartida(null);
+          return;
+        }
+
+        if (datos.estado === "EN_CURSO") {
+          navigate("/tablero", {
+            replace: true,
+            state: {
+              partidaId: datos.partidaId,
+              flota: datos.yo.flota,
+              estadoPartida: datos,
+            },
+          });
+          return;
+        }
+
+        if (datos.estado !== "DESPLIEGUE") {
+          setErrorConsulta("La partida no está en la fase de despliegue.");
+          setPartida(null);
+          return;
+        }
+
+        setPartida(datos);
+        setErrorConsulta("");
+        setSegundos(Math.max(
+          0,
+          Math.ceil(
+            (new Date(datos.despliegueExpiraEn).getTime() - Date.now()) / 1000
+          )
+        ));
+
+        if (datos.yo.listo) {
+          const guardados = {};
+
+          datos.yo.flota.forEach((barco) => {
+            guardados[barco.tipo] = barco.casilla;
+          });
+
+          setColocados(guardados);
+        }
+      } catch {
+        if (activo) {
+          setErrorConsulta("No se pudo conectar con el servidor.");
+        }
+      }
+    }
+
+    consultarPartida();
+    const consulta = setInterval(consultarPartida, 2000);
+
+    return () => {
+      activo = false;
+      clearInterval(consulta);
+    };
+  }, [partidaId, usuarioId, navigate]);
 
   function handleCasilla(x, y) {
-    if (y < ZONA.desde || y > ZONA.hasta) {
-      setError("Solo puedes desplegar en tu zona, filas 1 a 4.");
+    if (bloqueado) return;
+
+    if (y < zona.desde || y > zona.hasta) {
+      setError(`Solo puedes desplegar en tu zona, filas ${zona.desde} a ${zona.hasta}.`);
       return;
     }
 
@@ -121,7 +212,7 @@ function Preparacion() {
   }
 
   function handleAlAzar() {
-    setColocados(completarAlAzar(colocados));
+    setColocados(completarAlAzar(colocados, zona));
     setError("");
   }
 
@@ -131,14 +222,59 @@ function Preparacion() {
     setError("");
   }
 
-  function handleConfirmar() {
+  async function handleConfirmar() {
+    if (bloqueado) return;
+
     if (listos < tiposBarco.length) {
       setError("Debes colocar los cuatro barcos antes de confirmar.");
       return;
     }
 
-    navigate("/tablero", {
-      state: { despliegue: { barcos: armarDespliegue(colocados) }, flota: armarFlota(colocados) }});
+    setEnviando(true);
+    setError("");
+
+    try {
+      const respuesta = await fetch(`${API_URL}/games/${partidaId}/desplegar`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Usuario-Id": usuarioId,
+        },
+        body: JSON.stringify({
+          barcos: armarDespliegue(colocados),
+        }),
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok) {
+        setError(datos.mensaje || "No se pudo guardar el despliegue.");
+        return;
+      }
+
+      setPartida((anterior) => ({
+        ...anterior,
+        yo: { ...anterior.yo, listo: true },
+      }));
+    } catch {
+      setError("No se pudo conectar con el servidor.");
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  function handleAbandonar() {
+    navigate("/menu");
+  }
+
+  if (!partida) {
+    return (
+      <main className="preparacion">
+        <h1>Despliegue de la flota</h1>
+        <p>{errorConsulta || "Cargando partida..."}</p>
+        <button type="button" onClick={handleAbandonar}>Abandonar</button>
+      </main>
+    );
   }
 
   return (
@@ -146,7 +282,8 @@ function Preparacion() {
       <header className="preparacion-header">
         <h1>Despliegue de la flota</h1>
         <p className="preparacion-ayuda">
-          Elige un barco y haz click en una casilla de tu zona (filas 1 a 4).
+          Elige un barco y haz click en una casilla de tu zona
+          (filas {zona.desde} a {zona.hasta}).
         </p>
         <p className="preparacion-reloj">
           Tiempo restante: {Math.floor(segundos / 60)}:
@@ -157,9 +294,9 @@ function Preparacion() {
       <div className="preparacion-contenido">
         <Tablero
           flota={flota}
-          zona={ZONA}
+          zona={zona}
           seleccion={colocados[seleccionado] || null}
-          onSeleccionar={handleCasilla}
+          onSeleccionar={bloqueado ? null : handleCasilla}
         />
 
         <section className="preparacion-flota">
@@ -176,6 +313,7 @@ function Preparacion() {
                       : "preparacion-barco"
                   }
                   onClick={() => setSeleccionado(barco.tipo)}
+                  disabled={bloqueado}
                 >
                   <span className="preparacion-barco-letra">{barco.letra}</span>
 
@@ -199,16 +337,27 @@ function Preparacion() {
             {listos} de {tiposBarco.length} barcos desplegados
           </p>
 
+          {listo && <p>Despliegue guardado. Esperando al rival...</p>}
+          {!listo && segundos === 0 && (
+            <p>Tiempo agotado. Esperando el despliegue automático del servidor...</p>
+          )}
+
+          {errorConsulta && <p className="preparacion-error">{errorConsulta}</p>}
           {error && <p className="preparacion-error">{error}</p>}
 
           <div className="preparacion-botones">
-            <button type="button" onClick={handleAlAzar}>Colocar al azar</button>
-            <button type="button" onClick={handleLimpiar}>Limpiar</button>
+            <button type="button" onClick={handleAbandonar}>Abandonar</button>
+            <button type="button" onClick={handleAlAzar} disabled={bloqueado}>
+              Colocar al azar
+            </button>
+            <button type="button" onClick={handleLimpiar} disabled={bloqueado}>
+              Limpiar
+            </button>
             <button
               type="button"
               className="preparacion-confirmar"
               onClick={handleConfirmar}
-              disabled={listos < tiposBarco.length}
+              disabled={bloqueado || listos < tiposBarco.length}
             >
               Confirmar despliegue
             </button>

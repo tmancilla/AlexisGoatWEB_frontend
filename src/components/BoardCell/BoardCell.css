@@ -15,6 +15,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  touch-action: manipulation;
 }
 
 .celda:disabled {
@@ -106,8 +107,13 @@
   .celda {
     border-radius: 2px;
   }
+
   .celda-casco,
   .celda-contacto {
-    display: none;
+    font-size: 10px;
+    line-height: 1;
+    padding: 1px 2px;
+    border-radius: 3px;
+    background-color: rgba(11, 34, 54, 0.85);
   }
 }
